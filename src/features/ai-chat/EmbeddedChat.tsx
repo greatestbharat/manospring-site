@@ -87,30 +87,30 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
   };
 
   return (
-    <section className="py-18 bg-paper" id="wellness-guide">
+    <section className="py-18 bg-paper dark:bg-[#0a120f]" id="wellness-guide">
       <div className="wrap grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
         <div className="lg:col-span-5 space-y-5">
-          <span className="inline-flex items-center px-3 py-1 bg-brand-50 text-brand-700 rounded-full text-xs font-semibold">
+          <span className="inline-flex items-center px-3 py-1 bg-brand-50 dark:bg-teal-950/60 text-brand-700 dark:text-teal-200 rounded-full text-xs font-semibold border border-transparent dark:border-teal-800/50">
             Interactive Companion
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 leading-tight">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
             Sometimes, the first step is simply talking.
           </h2>
-          <p className="text-base text-slate-600 leading-relaxed">
+          <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed">
             Manospring Guide helps you put thoughts into words. Share your feelings naturally without rush, judgment, or clinical pressure.
           </p>
 
-          <div className="space-y-2.5 text-sm text-slate-700">
+          <div className="space-y-2.5 text-sm text-slate-700 dark:text-slate-300">
             <div className="flex items-center gap-2">
-              <span className="text-brand-600 font-bold">✓</span>
+              <span className="text-brand-600 dark:text-teal-400 font-bold">✓</span>
               <span>Understands everyday expressions, typos, and Indian English</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-brand-600 font-bold">✓</span>
+              <span className="text-brand-600 dark:text-teal-400 font-bold">✓</span>
               <span>Evidence-based grounding ideas (breathing, sleep hygiene)</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-brand-600 font-bold">✓</span>
+              <span className="text-brand-600 dark:text-teal-400 font-bold">✓</span>
               <span>Never makes definitive diagnoses or replaces clinical care</span>
             </div>
           </div>
@@ -126,15 +126,15 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
         </div>
 
         <div className="lg:col-span-7">
-          <div className="bg-white border border-sage-100 rounded-3xl shadow-soft flex flex-col h-[480px] overflow-hidden">
-            <div className="px-5 py-3.5 bg-paper-cream border-b border-sage-100 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-900 border border-sage-100 dark:border-slate-800 rounded-3xl shadow-soft flex flex-col h-[480px] overflow-hidden">
+            <div className="px-5 py-3.5 bg-paper-cream dark:bg-slate-950 border-b border-sage-100 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-brand-600 text-white flex items-center justify-center text-sm font-bold">
                   🌿
                 </div>
                 <div>
-                  <strong className="block text-sm font-bold text-slate-900">Personal Wellness Guide</strong>
-                  <span className="text-[11px] text-slate-500">Confidential Wellbeing Support</span>
+                  <strong className="block text-sm font-bold text-slate-900 dark:text-white">Personal Wellness Guide</strong>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">Confidential Wellbeing Support</span>
                 </div>
               </div>
               <Button variant="subtle" size="sm" onClick={handleReset}>
@@ -142,14 +142,14 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
               </Button>
             </div>
 
-            <div ref={scrollRef} className="flex-1 p-5 overflow-y-auto space-y-3 bg-[#fafbf8]">
+            <div ref={scrollRef} className="flex-1 p-5 overflow-y-auto space-y-3 bg-[#fafbf8] dark:bg-slate-950">
               {messages.map((msg, i) => (
                 <div
                   key={i}
                   className={`max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed ${
                     msg.role === 'user'
-                      ? 'ml-auto bg-brand-600 text-white rounded-tr-sm'
-                      : 'mr-auto bg-sage-50 text-slate-800 rounded-tl-sm border border-sage-100'
+                      ? 'ml-auto bg-brand-600 dark:bg-teal-700 text-white rounded-tr-sm'
+                      : 'mr-auto bg-sage-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-tl-sm border border-sage-100 dark:border-slate-700'
                   }`}
                 >
                   {msg.content}
@@ -157,9 +157,9 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
               ))}
 
               {suggestAppointment && (
-                <div className="p-4 bg-brand-50 border border-brand-200/80 rounded-2xl text-xs space-y-2 animate-in fade-in">
-                  <strong className="text-brand-900 block text-sm">🌿 Consider speaking with a professional</strong>
-                  <p className="text-slate-600">
+                <div className="p-4 bg-brand-50 dark:bg-teal-950/50 border border-brand-200/80 dark:border-teal-800/70 rounded-2xl text-xs space-y-2 animate-in fade-in">
+                  <strong className="text-brand-900 dark:text-teal-100 block text-sm">🌿 Consider speaking with a professional</strong>
+                  <p className="text-slate-600 dark:text-slate-300">
                     We've explored a few things together. A confidential session with a certified psychiatrist or psychologist can provide personalized care.
                   </p>
                   <Button variant="primary" size="sm" onClick={onBookClick}>
@@ -169,23 +169,23 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
               )}
 
               {busy && (
-                <div className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-sage-50 rounded-2xl border border-sage-100">
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-600 animate-typing-1" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-600 animate-typing-2" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-600 animate-typing-3" />
+                <div className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-sage-50 dark:bg-slate-800 rounded-2xl border border-sage-100 dark:border-slate-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-600 dark:bg-teal-400 animate-typing-1" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-600 dark:bg-teal-400 animate-typing-2" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-600 dark:bg-teal-400 animate-typing-3" />
                 </div>
               )}
             </div>
 
             {errorNotice && (
-              <div className="px-4 py-2.5 bg-amber-50 border-t border-amber-200 text-xs text-amber-900 flex items-center justify-between gap-2">
+              <div className="px-4 py-2.5 bg-amber-50 dark:bg-amber-950/40 border-t border-amber-200 dark:border-amber-800/60 text-xs text-amber-900 dark:text-amber-100 flex items-center justify-between gap-2">
                 <span className="leading-snug">{errorNotice}</span>
                 {canRetry && (
                   <button
                     type="button"
                     onClick={handleRetry}
                     disabled={busy}
-                    className="shrink-0 font-semibold underline disabled:opacity-50"
+                    className="shrink-0 font-semibold underline disabled:opacity-50 text-teal-800 dark:text-teal-300"
                   >
                     Retry
                   </button>
@@ -194,25 +194,25 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
             )}
 
             {messages.length === 1 && (
-              <div className="px-5 py-2 flex gap-1.5 flex-wrap bg-paper-cream border-t border-sage-50">
+              <div className="px-5 py-2 flex gap-1.5 flex-wrap bg-paper-cream dark:bg-slate-950 border-t border-sage-50 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => handleSend('I have been feeling stressed and anxious lately.')}
-                  className="bg-white hover:bg-brand-50 border border-sage-200 text-slate-700 text-xs px-2.5 py-1 rounded-full transition-colors"
+                  className="bg-white dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-slate-700 border border-sage-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs px-2.5 py-1 rounded-full transition-colors"
                 >
                   Feeling stressed
                 </button>
                 <button
                   type="button"
                   onClick={() => handleSend('I have trouble sleeping peacefully at night.')}
-                  className="bg-white hover:bg-brand-50 border border-sage-200 text-slate-700 text-xs px-2.5 py-1 rounded-full transition-colors"
+                  className="bg-white dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-slate-700 border border-sage-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs px-2.5 py-1 rounded-full transition-colors"
                 >
                   Sleep difficulty
                 </button>
                 <button
                   type="button"
                   onClick={() => handleSend('I have been feeling low and exhausted.')}
-                  className="bg-white hover:bg-brand-50 border border-sage-200 text-slate-700 text-xs px-2.5 py-1 rounded-full transition-colors"
+                  className="bg-white dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-slate-700 border border-sage-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs px-2.5 py-1 rounded-full transition-colors"
                 >
                   Feeling low
                 </button>
@@ -224,7 +224,7 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
                 e.preventDefault();
                 handleSend();
               }}
-              className="p-3 bg-white border-t border-sage-100 flex gap-2"
+              className="p-3 bg-white dark:bg-slate-900 border-t border-sage-100 dark:border-slate-800 flex gap-2"
             >
               <input
                 type="text"
@@ -232,7 +232,7 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type what is on your mind..."
                 maxLength={1200}
-                className="flex-1 px-4 py-2.5 bg-paper-cream border border-sage-200 rounded-full text-sm outline-none focus:bg-white focus:border-brand-600"
+                className="flex-1 px-4 py-2.5 bg-paper-cream dark:bg-slate-800 border border-sage-200 dark:border-slate-700 rounded-full text-sm outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-brand-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
               <button
                 type="submit"

@@ -8,7 +8,6 @@ import {
   Save, Phone, History, Trash2, UserPlus
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
 import { useTranslation } from '../../app/i18n';
 
 interface FloatingChatProps {
@@ -326,19 +325,33 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
     }, 2200);
   };
 
-  // Formats text with markdown-like bold and bullet lists
-  const renderFormattedContent = (content: string) => {
+  // Formats text with markdown-like bold and bullet lists (theme + role aware)
+  const renderFormattedContent = (content: string, role: 'user' | 'assistant' | 'system') => {
+    const isUser = role === 'user';
+    const listText = isUser
+      ? 'text-white/95'
+      : 'text-slate-700 dark:text-slate-200';
+    const markerText = isUser
+      ? 'text-teal-100'
+      : 'text-teal-700 dark:text-teal-300';
+    const numberText = isUser
+      ? 'text-teal-50'
+      : 'text-teal-800 dark:text-teal-300';
+    const strongText = isUser
+      ? 'text-white'
+      : 'text-slate-900 dark:text-white';
+
     const lines = content.split('\n');
     return (
-      <div className="space-y-1.5 leading-relaxed">
+      <div className={`space-y-1.5 leading-relaxed ${listText}`}>
         {lines.map((line, idx) => {
           if (!line.trim()) return <div key={idx} className="h-1.5" />;
           
           if (line.startsWith('• ') || line.startsWith('- ')) {
             return (
-              <div key={idx} className="flex items-start gap-1.5 pl-1 text-slate-700">
-                <span className="text-teal-700 font-bold">•</span>
-                <span>{renderInlineFormatting(line.substring(2))}</span>
+              <div key={idx} className="flex items-start gap-1.5 pl-1">
+                <span className={`${markerText} font-bold`}>•</span>
+                <span>{renderInlineFormatting(line.substring(2), strongText)}</span>
               </div>
             );
           }
@@ -346,24 +359,24 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
           const matchNum = line.match(/^(\d+)\.\s+(.*)/);
           if (matchNum) {
             return (
-              <div key={idx} className="flex items-start gap-1.5 pl-1 text-slate-700">
-                <span className="font-semibold text-teal-800 text-[11px] min-w-[16px]">{matchNum[1]}.</span>
-                <span>{renderInlineFormatting(matchNum[2])}</span>
+              <div key={idx} className="flex items-start gap-1.5 pl-1">
+                <span className={`font-semibold ${numberText} text-[11px] min-w-[16px]`}>{matchNum[1]}.</span>
+                <span>{renderInlineFormatting(matchNum[2], strongText)}</span>
               </div>
             );
           }
 
-          return <p key={idx}>{renderInlineFormatting(line)}</p>;
+          return <p key={idx}>{renderInlineFormatting(line, strongText)}</p>;
         })}
       </div>
     );
   };
 
-  const renderInlineFormatting = (text: string) => {
+  const renderInlineFormatting = (text: string, strongClass: string) => {
     const parts = text.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i} className="font-semibold text-slate-900">{part.slice(2, -2)}</strong>;
+        return <strong key={i} className={`font-semibold ${strongClass}`}>{part.slice(2, -2)}</strong>;
       }
       return part;
     });
@@ -510,9 +523,10 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
               <div>
                 <h3 className="text-xs font-semibold tracking-tight text-white flex items-center gap-1.5 leading-tight">
                   <span>{t('chat.headerTitle', 'Personal Wellness Guide')}</span>
-                  <Badge variant="teal" className="text-[9px] px-1.5 py-0 font-normal bg-teal-900/80 text-teal-200 border-teal-700">
+                  {/* Fixed dark-header chip — header is always slate-900 in both themes */}
+                  <span className="inline-flex items-center px-1.5 py-0 rounded-full text-[9px] font-normal tracking-wide bg-teal-800/90 text-teal-100 border border-teal-600/50">
                     {t('chat.confidentialBadge', 'Confidential')}
-                  </Badge>
+                  </span>
                 </h3>
                 <span className="text-[10px] text-slate-400 block leading-tight">
                   {t('chat.headerSubtitle', 'Supportive listening & grounding companion')}
@@ -605,7 +619,7 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
                           : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-tl-none'
                       }`}
                     >
-                      {renderFormattedContent(msg.content)}
+                      {renderFormattedContent(msg.content, msg.role)}
                     </div>
 
                     {/* Copy button for guide messages */}
@@ -726,10 +740,10 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
             {busy && (
               <div className="flex flex-col items-start space-y-1">
                 <div className="flex items-center gap-1.5 px-1">
-                  <span className="w-3.5 h-3.5 rounded-full bg-teal-800 text-teal-100 text-[8px] flex items-center justify-center">
+                  <span className="w-3.5 h-3.5 rounded-full bg-teal-800 dark:bg-teal-700 text-teal-100 text-[8px] flex items-center justify-center">
                     🌿
                   </span>
-                  <span className="text-[10px] font-medium text-slate-400">
+                  <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
                     Wellness Guide is reflecting...
                   </span>
                 </div>
@@ -749,9 +763,9 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
                     <Calendar className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
                     <span>Speak with a Verified Specialist</span>
                   </div>
-                  <Badge variant="teal" className="text-[9px] bg-teal-200/60 dark:bg-teal-900/60 text-teal-900 dark:text-teal-200 border-none">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-semibold tracking-wide bg-teal-200/70 dark:bg-teal-900/70 text-teal-900 dark:text-teal-200">
                     Next Step
-                  </Badge>
+                  </span>
                 </div>
                 <p className="text-[11px] text-teal-800/90 dark:text-teal-200/90 leading-relaxed">
                   Talking things through is a meaningful first step. When you are ready, you can book a private 1-on-1 consultation with a licensed psychiatrist or psychologist.
