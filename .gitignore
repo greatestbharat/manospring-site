@@ -3,10 +3,10 @@ node_modules/
 .pnp
 .pnp.js
 
-# Environment variables & secrets (CRITICAL: Never commit secrets)
+# Local secrets — never commit API keys
+secrets.json
 .env
 .env.*
-!.env.example
 *.pem
 *.key
 *.cert
