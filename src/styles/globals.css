@@ -36,6 +36,14 @@ html.dark body, body.dark {
   html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
     color: #f8fafc;
   }
+
+  /* Wellness chat dialog uses its own theme tokens — do not force page heading colors */
+  [data-chat-dialog] h1,
+  [data-chat-dialog] h2,
+  [data-chat-dialog] h3,
+  [data-chat-dialog] h4 {
+    color: inherit;
+  }
 }
 
 em {

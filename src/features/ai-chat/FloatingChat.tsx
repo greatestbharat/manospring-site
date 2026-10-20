@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { useTranslation } from '../../app/i18n';
+import { useTheme } from '../../app/theme';
+import { cn } from '../../lib/utils';
 
 interface FloatingChatProps {
   onBookWithDoctor?: () => void;
@@ -78,6 +80,7 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
   incomingPrompt
 }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
 
   // Primary open/close state: synchronized with parent controls
   const [isOpen, setIsOpen] = useState(false);
@@ -501,45 +504,88 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
         </button>
       )}
 
-      {/* Modern, Compact Chat Dialog Container */}
+      {/* Modern, Compact Chat Dialog Container — fully light/dark theme aware */}
       {isOpen && (
-        <div 
-          className={`fixed z-50 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200/90 dark:border-slate-800 flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 ${
-            isExpanded 
+        <div
+          data-chat-dialog
+          data-theme={theme}
+          className={cn(
+            'fixed z-50 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-3',
+            'bg-white text-slate-800 border border-slate-200/90',
+            'dark:bg-slate-900 dark:text-slate-100 dark:border-slate-800',
+            isExpanded
               ? 'bottom-[10px] right-[10px] w-[calc(100vw-20px)] h-[calc(100vh-20px)] sm:bottom-5 sm:right-5 sm:w-[560px] sm:h-[680px]'
               : 'bottom-5 right-5 w-[calc(100vw-40px)] sm:w-[395px] h-[550px] max-h-[84vh]'
-          }`}
+          )}
         >
           
-          {/* Compact Dark Header */}
-          <div className="px-4 py-3 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
-            <div className="flex items-center gap-2.5">
-              <div className="relative">
-                <div className="w-7 h-7 rounded-full bg-teal-800 border border-teal-600/60 flex items-center justify-center text-teal-200 text-xs shadow-inner">
+          {/* Theme-aware header: light surface in light mode, dark surface in dark mode */}
+          <div
+            className={cn(
+              'px-4 py-3 flex items-center justify-between border-b shrink-0',
+              'bg-paper-cream text-slate-900 border-slate-200',
+              'dark:bg-slate-950 dark:text-white dark:border-slate-800'
+            )}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="relative shrink-0">
+                <div
+                  className={cn(
+                    'w-7 h-7 rounded-full flex items-center justify-center text-xs shadow-inner border',
+                    'bg-teal-50 text-teal-800 border-teal-200',
+                    'dark:bg-teal-800 dark:text-teal-50 dark:border-teal-600/60'
+                  )}
+                >
                   🌿
                 </div>
-                <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 border-2 border-slate-900" />
+                <span
+                  className={cn(
+                    'absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 border-2',
+                    'border-paper-cream dark:border-slate-950'
+                  )}
+                />
               </div>
-              <div>
-                <h3 className="text-xs font-semibold tracking-tight text-white flex items-center gap-1.5 leading-tight">
-                  <span>{t('chat.headerTitle', 'Personal Wellness Guide')}</span>
-                  {/* Fixed dark-header chip — header is always slate-900 in both themes */}
-                  <span className="inline-flex items-center px-1.5 py-0 rounded-full text-[9px] font-normal tracking-wide bg-teal-800/90 text-teal-100 border border-teal-600/50">
+              <div className="min-w-0">
+                <div
+                  className={cn(
+                    'text-xs font-semibold tracking-tight flex items-center gap-1.5 leading-tight flex-wrap',
+                    'text-slate-900 dark:text-white'
+                  )}
+                >
+                  <span className="truncate">{t('chat.headerTitle', 'Personal Wellness Guide')}</span>
+                  <span
+                    className={cn(
+                      'inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-medium tracking-wide shrink-0 border',
+                      /* Light: soft teal pill on cream header */
+                      'bg-teal-50 text-teal-800 border-teal-200',
+                      /* Dark: muted teal chip on dark header */
+                      'dark:bg-teal-900/80 dark:text-teal-100 dark:border-teal-700/60'
+                    )}
+                  >
                     {t('chat.confidentialBadge', 'Confidential')}
                   </span>
-                </h3>
-                <span className="text-[10px] text-slate-400 block leading-tight">
+                </div>
+                <span
+                  className={cn(
+                    'text-[10px] block leading-tight truncate',
+                    'text-slate-500 dark:text-slate-400'
+                  )}
+                >
                   {t('chat.headerSubtitle', 'Supportive listening & grounding companion')}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               <button
                 type="button"
                 onClick={() => setIsExpanded(!isExpanded)}
-                title={isExpanded ? "Collapse window" : "Expand window"}
-                className="w-6 h-6 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center transition-colors text-xs cursor-pointer"
+                title={isExpanded ? 'Collapse window' : 'Expand window'}
+                className={cn(
+                  'w-6 h-6 rounded-lg flex items-center justify-center transition-colors text-xs cursor-pointer',
+                  'text-slate-500 hover:text-brand-800 hover:bg-slate-100',
+                  'dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
+                )}
               >
                 {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
               </button>
@@ -547,7 +593,11 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
                 type="button"
                 onClick={handleReset}
                 title="Restart conversation"
-                className="w-6 h-6 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center transition-colors text-xs cursor-pointer"
+                className={cn(
+                  'w-6 h-6 rounded-lg flex items-center justify-center transition-colors text-xs cursor-pointer',
+                  'text-slate-500 hover:text-brand-800 hover:bg-slate-100',
+                  'dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
+                )}
               >
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
@@ -555,7 +605,11 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
                 type="button"
                 onClick={handleClose}
                 title="Close guide"
-                className="w-6 h-6 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center transition-colors text-xs cursor-pointer"
+                className={cn(
+                  'w-6 h-6 rounded-lg flex items-center justify-center transition-colors text-xs cursor-pointer',
+                  'text-slate-500 hover:text-brand-800 hover:bg-slate-100',
+                  'dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
+                )}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -613,11 +667,12 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
 
                   <div className="relative max-w-[88%] sm:max-w-[82%]">
                     <div
-                      className={`p-3 rounded-2xl leading-relaxed text-xs shadow-xs ${
+                      className={cn(
+                        'p-3 rounded-2xl leading-relaxed text-xs shadow-xs',
                         isUser
-                          ? 'bg-teal-800 dark:bg-teal-700 text-white rounded-tr-none'
-                          : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-tl-none'
-                      }`}
+                          ? 'bg-teal-800 text-white rounded-tr-none dark:bg-teal-700'
+                          : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700'
+                      )}
                     >
                       {renderFormattedContent(msg.content, msg.role)}
                     </div>
