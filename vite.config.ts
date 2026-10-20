@@ -5,7 +5,12 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// GitHub Pages project site: https://greatestbharat.github.io/manospring-site/
+const pagesBase = process.env.VITE_BASE || '/manospring-site/';
+const isStatic = process.env.VITE_STATIC === 'true';
+
 export default defineConfig({
+  base: isStatic ? pagesBase : '/',
   plugins: [react()],
   resolve: {
     alias: {

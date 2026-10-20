@@ -4,6 +4,7 @@ import { Menu, X, HeartPulse, Sun, Moon, Languages, ChevronDown, Check, ArrowRig
 import { useTheme } from '../../app/theme';
 import { useTranslation } from '../../app/i18n';
 import { cn } from '../../lib/utils';
+import { appPath, currentAppPath, navigateApp } from '../../lib/routing';
 
 interface HeaderProps {
   onBookClick: () => void;
@@ -38,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   /* Track current path for active nav state */
   useEffect(() => {
-    const syncPath = () => setActivePath(window.location.pathname);
+    const syncPath = () => setActivePath(currentAppPath());
     syncPath();
     window.addEventListener('popstate', syncPath);
     return () => window.removeEventListener('popstate', syncPath);
@@ -96,8 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
     if (onNavigate) {
       onNavigate(path, sectionId);
     } else {
-      window.history.pushState(null, '', path);
-      window.dispatchEvent(new PopStateEvent('popstate'));
+      navigateApp(path);
       if (sectionId === 'home') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
@@ -138,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Left: Brand */}
           <a
-            href="/"
+            href={appPath('/')}
             onClick={(e) => handleNav(e, '/', 'home')}
             className="flex items-center gap-2.5 group shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 rounded-xl"
             aria-label="manospring — Home"
@@ -162,7 +162,7 @@ export const Header: React.FC<HeaderProps> = ({
             {navItems.map((item) => (
               <a
                 key={item.path}
-                href={item.path}
+                href={appPath(item.path)}
                 onClick={(e) => handleNav(e, item.path, item.sectionId)}
                 className={navLinkClass(item.path)}
                 aria-current={isActive(item.path) ? 'page' : undefined}
@@ -328,7 +328,7 @@ export const Header: React.FC<HeaderProps> = ({
           {navItems.map((item) => (
             <a
               key={item.path}
-              href={item.path}
+              href={appPath(item.path)}
               onClick={(e) => handleNav(e, item.path, item.sectionId)}
               className={cn(
                 'flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer',

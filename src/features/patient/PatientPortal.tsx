@@ -12,6 +12,7 @@ import { Appointment, UserSession } from '../../types';
 import { appointmentService } from '../../services/appointment.service';
 import { formatCurrency } from '../../lib/utils';
 import { api } from '../../services/api';
+import { currentAppPath, replaceApp } from '../../lib/routing';
 
 interface PatientPortalProps {
   onJoinRoom: (roomId: string) => void;
@@ -127,10 +128,10 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       if (window.location.hash.startsWith('#sessions')) {
         const query = window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '';
         const clean = '/sessions' + (query ? '?' + query : '');
-        window.history.replaceState(null, '', clean);
+        replaceApp(clean);
       }
 
-      const pathname = window.location.pathname;
+      const pathname = currentAppPath();
       const search = window.location.search;
 
       if (search.includes('view=clinician') || search.includes('view=admin')) {
@@ -184,9 +185,9 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
 
   const updateUrlPath = (view: 'patient' | 'clinician') => {
     const targetUrl = `/sessions?view=${view}`;
-    const current = window.location.pathname + window.location.search;
+    const current = `${currentAppPath()}${window.location.search}`;
     if (current !== targetUrl) {
-      window.history.replaceState(null, '', targetUrl);
+      replaceApp(targetUrl);
     }
   };
 

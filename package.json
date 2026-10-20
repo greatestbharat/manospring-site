@@ -8,10 +8,12 @@
     "dev:client": "vite",
     "dev:server": "tsx watch server/src/server.ts",
     "build:client": "vite build",
+    "build:pages": "VITE_STATIC=true VITE_BASE=/manospring-site/ vite build && cp dist/client/index.html dist/client/404.html",
     "build:server": "tsc -p tsconfig.server.json",
     "build": "npm run build:client && npm run build:server",
     "start": "node dist/server/server.js",
-    "test": "node --import tsx tests/api.test.ts"
+    "test": "node --import tsx tests/api.test.ts",
+    "preview:pages": "npm run build:pages && vite preview --base /manospring-site/"
   },
   "engines": {
     "node": ">=20"

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from '../../app/i18n';
+import { appPath, navigateApp } from '../../lib/routing';
 
 interface FooterProps {
   onOpenEmergency?: () => void;
@@ -31,8 +32,7 @@ export const Footer: React.FC<FooterProps> = ({
     if (onNavigate) {
       onNavigate(path, sectionId);
     } else {
-      window.history.pushState(null, '', path);
-      window.dispatchEvent(new PopStateEvent('popstate'));
+      navigateApp(path);
       if (sectionId === 'home') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
@@ -73,10 +73,10 @@ export const Footer: React.FC<FooterProps> = ({
               {t('footer.careServices', 'Care Services')}
             </h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
-              <li><a href="/specialists" onClick={(e) => handleNav(e, '/specialists', 'specialists')} className="hover:text-white transition-colors cursor-pointer">{t('footer.psychiatry', 'Consult Psychiatrists (MD/DNB)')}</a></li>
-              <li><a href="/specialists" onClick={(e) => handleNav(e, '/specialists', 'specialists')} className="hover:text-white transition-colors cursor-pointer">{t('footer.psychology', 'Clinical Psychologists (M.Phil, RCI)')}</a></li>
-              <li><a href="/wellness" onClick={(e) => handleNav(e, '/wellness', 'wellness')} className="hover:text-white transition-colors cursor-pointer">{t('nav.wellness', 'Mental Wellness')}</a></li>
-              <li><a href="/sessions" onClick={(e) => handleNav(e, '/sessions', 'sessions')} className="hover:text-white transition-colors cursor-pointer">{t('footer.portal', 'Patient Portal & Sessions')}</a></li>
+              <li><a href={appPath('/specialists')} onClick={(e) => handleNav(e, '/specialists', 'specialists')} className="hover:text-white transition-colors cursor-pointer">{t('footer.psychiatry', 'Consult Psychiatrists (MD/DNB)')}</a></li>
+              <li><a href={appPath('/specialists')} onClick={(e) => handleNav(e, '/specialists', 'specialists')} className="hover:text-white transition-colors cursor-pointer">{t('footer.psychology', 'Clinical Psychologists (M.Phil, RCI)')}</a></li>
+              <li><a href={appPath('/wellness')} onClick={(e) => handleNav(e, '/wellness', 'wellness')} className="hover:text-white transition-colors cursor-pointer">{t('nav.wellness', 'Mental Wellness')}</a></li>
+              <li><a href={appPath('/sessions')} onClick={(e) => handleNav(e, '/sessions', 'sessions')} className="hover:text-white transition-colors cursor-pointer">{t('footer.portal', 'Patient Portal & Sessions')}</a></li>
             </ul>
           </div>
 
@@ -84,10 +84,10 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-100">Patient Support</h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
-              <li><a href="/how-it-works" onClick={(e) => handleNav(e, '/how-it-works', 'how-it-works')} className="hover:text-white transition-colors cursor-pointer">{t('nav.howItWorks', 'How Manospring Works')}</a></li>
-              <li><a href="/sessions" onClick={(e) => handleNav(e, '/sessions', 'sessions')} className="hover:text-white transition-colors cursor-pointer">{t('nav.sessions', 'My Appointments')}</a></li>
-              <li><a href="/faq" onClick={(e) => handleNav(e, '/faq', 'faq')} className="hover:text-white transition-colors cursor-pointer">Frequently Asked Questions</a></li>
-              <li><a href="/contact" onClick={(e) => handleNav(e, '/contact', 'contact')} className="hover:text-white transition-colors cursor-pointer">Contact Care Team</a></li>
+              <li><a href={appPath('/how-it-works')} onClick={(e) => handleNav(e, '/how-it-works', 'how-it-works')} className="hover:text-white transition-colors cursor-pointer">{t('nav.howItWorks', 'How Manospring Works')}</a></li>
+              <li><a href={appPath('/sessions')} onClick={(e) => handleNav(e, '/sessions', 'sessions')} className="hover:text-white transition-colors cursor-pointer">{t('nav.sessions', 'My Appointments')}</a></li>
+              <li><a href={appPath('/faq')} onClick={(e) => handleNav(e, '/faq', 'faq')} className="hover:text-white transition-colors cursor-pointer">Frequently Asked Questions</a></li>
+              <li><a href={appPath('/contact')} onClick={(e) => handleNav(e, '/contact', 'contact')} className="hover:text-white transition-colors cursor-pointer">Contact Care Team</a></li>
               <li><button onClick={handleEmergency} className="hover:text-rose-400 transition-colors text-left font-medium text-rose-300 cursor-pointer">{t('footer.emergencySupport', '24/7 Crisis Helplines')}</button></li>
             </ul>
           </div>

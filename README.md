@@ -1,54 +1,69 @@
 # Manospring — Mental Healthcare Demo
 
-Demo mental healthcare site: React + TypeScript frontend, Express backend.
+React + TypeScript frontend with an optional Express backend.
 
-Most features use **mock data** (specialists, booking, consultations, patient portal). Only the **Personal Wellness Guide** (AI chat) needs a real API key. Without a key, chat still works with built-in offline replies.
-
-The API key stays on the **server only** — never in frontend code, never committed to GitHub.
+Most features use **mock data** (specialists, booking, consultations, patient portal). The site is configured for free **GitHub Pages** hosting as a static website.
 
 ---
 
-## Quick start
+## Can this run on GitHub Pages?
 
-### 1. Install
+**Yes — as a static demo.** GitHub Pages only serves HTML/CSS/JS (no Node/Express). For Pages builds (`VITE_STATIC=true`):
+
+- Specialists, booking, sessions, clinician login, contact, and privacy forms run entirely in the browser with mock data
+- AI chat uses the built-in **local wellness engine** (compassionate offline replies + crisis helplines)
+- **No API key** is embedded in the frontend and none is required for Pages
+
+### Live Groq AI chat (optional)
+
+Calling Groq needs a **server** so the key stays private. GitHub Pages cannot do that. Simplest free alternative:
+
+1. Keep this static site on GitHub Pages for the UI, **or**
+2. Deploy the full app (`npm run build` + `npm start`) on [Render](https://render.com/) free tier and set `GROQ_API_KEY` in the Render dashboard
+
+Local full-stack with live AI: put your key in gitignored `secrets.json` (see below) and run `npm run dev`.
+
+---
+
+## Quick start (local)
 
 ```bash
 npm install
+npm run dev          # full stack at http://localhost:3000
 ```
 
-### 2. Add your Groq key (optional — for live AI chat)
+Optional live AI (server only — never commit this file):
 
 ```bash
 cp secrets.example.json secrets.json
+# edit secrets.json → groqApiKey
 ```
 
-Open `secrets.json` and paste your key:
-
-```json
-{
-  "groqApiKey": "gsk_your_actual_key_here",
-  "groqModel": "openai/gpt-oss-20b"
-}
-```
-
-Get a free key: [console.groq.com](https://console.groq.com/) → API Keys → Create API Key.
-
-`secrets.json` is listed in `.gitignore` and will not be pushed to GitHub.
-
-### 3. Run
+Preview the GitHub Pages static build locally:
 
 ```bash
-npm run dev
+npm run build:pages
+npm run preview:pages
+# open http://localhost:4173/manospring-site/
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+---
 
-Production-style run:
+## Host on GitHub Pages (free)
 
-```bash
-npm run build
-npm start
-```
+Repo: [greatestbharat/manospring-site](https://github.com/greatestbharat/manospring-site)
+
+1. In GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**
+2. Push to `main` (workflow `.github/workflows/deploy-pages.yml` runs automatically)
+3. Site URL: **https://greatestbharat.github.io/manospring-site/**
+
+Build settings used by the workflow:
+
+| Setting | Value |
+|--------|--------|
+| Command | `npm run build:pages` |
+| Env | `VITE_STATIC=true`, `VITE_BASE=/manospring-site/` |
+| Output | `dist/client` (+ `404.html` for SPA routes) |
 
 ---
 
@@ -60,56 +75,15 @@ npm test
 
 ---
 
-## Push to GitHub
-
-1. Create an empty repo on [GitHub](https://github.com/new) (no README / .gitignore).
-
-2. From this project folder:
-
-```bash
-git add .
-git status   # confirm secrets.json is NOT listed
-git commit -m "Initial commit: Manospring healthcare demo"
-git remote add origin https://github.com/YOUR_USERNAME/manospring.git
-git branch -M main
-git push -u origin main
-```
-
-If `origin` already exists, use:
-
-```bash
-git remote set-url origin https://github.com/YOUR_USERNAME/manospring.git
-git push -u origin main
-```
-
----
-
-## Host (simplest: Render)
-
-1. Sign up at [render.com](https://render.com/) and connect GitHub.
-2. **New** → **Web Service** → pick this repo.
-3. Settings:
-   - **Build:** `npm install && npm run build`
-   - **Start:** `npm start`
-   - **Plan:** Free
-4. Add env var (hosting cannot use your local `secrets.json`):
-   - `GROQ_API_KEY` = your Groq key
-5. Deploy → open the Render URL.
-
-Railway works the same way: deploy from GitHub, set `GROQ_API_KEY` in the dashboard.
-
----
-
 ## Project layout
 
 ```text
 manospring/
-├── src/                 # React frontend (no API keys)
-├── server/              # Express API + Groq chat (server-side only)
-├── secrets.example.json # Template for local AI key
-├── secrets.json         # Your real key (gitignored — create locally)
-├── render.yaml          # Optional Render blueprint
-└── Dockerfile           # Optional container deploy
+├── src/                 # React frontend (mock API when VITE_STATIC=true)
+├── server/              # Express + Groq (local / Render only — not on Pages)
+├── .github/workflows/   # GitHub Pages deploy
+├── secrets.example.json # Template for local Groq key
+└── secrets.json         # Your key (gitignored)
 ```
 
 ---

@@ -21,6 +21,7 @@ import { ClinicianLoginModal } from '../components/shared/ClinicianLoginModal';
 import { PrivacyRequestModal } from '../components/shared/PrivacyRequestModal';
 import { PrivacyModal, TermsModal } from '../components/shared/LegalModals';
 import { Specialist } from '../types';
+import { currentAppPath, navigateApp, replaceApp } from '../lib/routing';
 
 export const AppContent: React.FC = () => {
   // Modal states
@@ -40,10 +41,9 @@ export const AppContent: React.FC = () => {
   const [guideOpen, setGuideOpen] = useState<boolean>(false);
   const [guidePrompt, setGuidePrompt] = useState<string>('');
 
-  // Clean Path-based Navigation (No '#' in URLs)
+  // Clean Path-based Navigation (works with GitHub Pages base path)
   const handleNavigate = (path: string, sectionId?: string) => {
-    window.history.pushState(null, '', path);
-    window.dispatchEvent(new PopStateEvent('popstate'));
+    navigateApp(path);
     if (sectionId === 'home' || path === '/') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (sectionId) {
@@ -59,10 +59,10 @@ export const AppContent: React.FC = () => {
       const hash = window.location.hash;
       if (hash && hash.startsWith('#')) {
         const cleanPath = hash.replace(/^#\/?/, '/');
-        window.history.replaceState(null, '', cleanPath);
+        replaceApp(cleanPath);
       }
 
-      const path = window.location.pathname;
+      const path = currentAppPath();
       const sectionMap: Record<string, string> = {
         '/specialists': 'specialists',
         '/how-it-works': 'how-it-works',
