@@ -49,7 +49,7 @@ Repository: [greatestbharat/manospring-site](https://github.com/greatestbharat/m
 | **Branch** | `main` |
 | **Root directory** | `.` (leave blank / repo root) |
 | **Runtime** | Node |
-| **Build command** | `NPM_CONFIG_PRODUCTION=false npm ci && npm run build` |
+| **Build command** | `npm install && npm run build` |
 | **Start command** | `npm start` |
 | **Health check path** | `/api/health` |
 | **Plan** | Free (or Starter) |
