@@ -1,0 +1,93 @@
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --primary: 34 100 80;
+  --primary-foreground: 255 255 255;
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+body {
+  background-color: #f8f9f5;
+  color: #1e293b;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+html.dark body, body.dark {
+  background-color: #0b1512;
+  color: #e2e8f0;
+}
+
+@layer base {
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+    color: #0f172a;
+  }
+
+  html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+    color: #f8fafc;
+  }
+}
+
+em {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  color: #1e5343;
+}
+
+html.dark em {
+  color: #6ea98e;
+}
+
+.wrap {
+  width: min(1140px, calc(100% - 44px));
+  margin: 0 auto;
+}
+
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+  40% { transform: translateY(-4px); opacity: 1; }
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  12% { transform: scale(1.18); }
+  24% { transform: scale(1); }
+  36% { transform: scale(1.12); }
+  56% { transform: scale(1); }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+@keyframes fabFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-fab-float {
+  animation: fabFloat 4.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Heart beats faster when the launcher is hovered */
+.group:hover .animate-heartbeat {
+  animation-duration: 0.85s;
+}
+
+.animate-typing-1 { animation: typingBounce 1.4s infinite ease-in-out; }
+.animate-typing-2 { animation: typingBounce 1.4s infinite ease-in-out 0.2s; }
+.animate-typing-3 { animation: typingBounce 1.4s infinite ease-in-out 0.4s; }

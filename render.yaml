@@ -1,0 +1,18 @@
+# Render Blueprint for 1-Click Deployment
+# Documentation: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: manospring
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-20b
+      - key: GROQ_API_KEY
+        sync: false # Enter your Groq API key in the Render Dashboard

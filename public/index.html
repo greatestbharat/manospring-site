@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#226450">
+  <meta name="description" content="Manospring — Professional, confidential mental healthcare and empathetic AI wellbeing guidance. Consult verified psychiatrists and clinical psychologists online.">
+  <title>Manospring — A Calmer Mind Starts Here</title>
+
+  <!-- Google Fonts: Inter & Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       1. SLIM, CALMING TOP CRISIS BAR
+       ========================================================================== -->
+  <aside class="top-bar-minimal" role="complementary" aria-label="Crisis helpline information">
+    <div class="wrap">
+      <span>🌿 24/7 National Mental Health Helpline (India): <strong>14416</strong> (Tele-MANAS) · Emergency: <strong>112</strong></span>
+      <button type="button" class="top-bar-btn" onclick="openEmergencyModal()">All Crisis Helplines ↗</button>
+    </div>
+  </aside>
+
+  <!-- ==========================================================================
+       2. REFINED, SHORT, BEAUTIFUL NAVIGATION HEADER
+       ========================================================================== -->
+  <header class="site-header">
+    <div class="wrap site-nav">
+      <a class="brand-link" href="#home" aria-label="Manospring Home">
+        <span class="brand-emblem">
+          <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <path d="M20 34C13 28 5 22 7 14C9 7 17 8 20 15C23 8 31 7 33 14C35 22 27 28 20 34Z" fill="#d4eda8"/>
+            <path d="M12 20Q16 15 20 21Q24 15 28 20M20 15V28" stroke="#164839" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span>manospring</span>
+      </a>
+
+      <!-- Clean, Short Menu: 4 Items Only -->
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="#specialists" class="nav-link">Find Care</a>
+        <a href="#ai-guide" class="nav-link">AI Guide</a>
+        <a href="#how-it-works" class="nav-link">How it Works</a>
+        <a href="#portal" class="nav-link">My Sessions</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button type="button" class="btn btn-primary" onclick="startBooking()">
+          Book a Session <span>↗</span>
+        </button>
+        <button type="button" class="mobile-menu-btn" id="mobile-toggle" onclick="toggleMobileDrawer()" aria-label="Toggle menu">
+          ☰
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Dropdown Drawer -->
+  <div class="mobile-drawer" id="mobile-drawer">
+    <a href="#specialists" class="nav-link" onclick="toggleMobileDrawer(false)">Find Care</a>
+    <a href="#ai-guide" class="nav-link" onclick="toggleMobileDrawer(false)">AI Guide</a>
+    <a href="#how-it-works" class="nav-link" onclick="toggleMobileDrawer(false)">How it Works</a>
+    <a href="#portal" class="nav-link" onclick="toggleMobileDrawer(false)">My Sessions & Portal</a>
+    <a href="#faq" class="nav-link" onclick="toggleMobileDrawer(false)">FAQs</a>
+    <button type="button" class="btn btn-soft" style="width: 100%; justify-content: center; margin-top: 8px;" onclick="toggleMobileDrawer(false); openModal('clinician-login-modal')">
+      Clinician Login
+    </button>
+  </div>
+
+  <!-- ==========================================================================
+       3. HERO SECTION — SERENE, AIRY & GENTLE
+       ========================================================================== -->
+  <main id="home">
+    <section class="hero-section">
+      <div class="wrap hero-grid">
+        <div class="hero-content">
+          <span class="eyebrow">
+            <span class="eyebrow-dot"></span> Care designed around people
+          </span>
+          <h1 class="hero-title">
+            A calmer mind starts with a <em>conversation.</em>
+          </h1>
+          <p class="hero-subtitle">
+            Talk things through at your pace with our compassionate AI wellness guide, or connect privately with certified psychiatrists and psychologists online.
+          </p>
+
+          <div class="hero-ctas">
+            <button type="button" class="btn btn-primary btn-lg" onclick="triggerTriageChip('anxiety')">
+              Talk to AI Guide <span>→</span>
+            </button>
+            <button type="button" class="btn btn-soft btn-lg" onclick="document.querySelector('#specialists').scrollIntoView({behavior:'smooth'})">
+              Meet Specialists
+            </button>
+          </div>
+
+          <!-- Light Wellness Chips -->
+          <div class="triage-pills">
+            <div class="triage-label">Start with what is on your mind</div>
+            <div class="triage-chips">
+              <button type="button" class="triage-chip" onclick="triggerTriageChip('anxiety')">🌿 Feeling Anxious</button>
+              <button type="button" class="triage-chip" onclick="triggerTriageChip('sleep')">🌙 Sleep Concerns</button>
+              <button type="button" class="triage-chip" onclick="triggerTriageChip('burnout')">💼 Work Burnout</button>
+              <button type="button" class="triage-chip" onclick="triggerTriageChip('depression')">🌧️ Low Mood</button>
+            </div>
+          </div>
+
+          <div class="trust-row">
+            <span><b class="trust-check">✓</b> Verified Clinicians (NMC & RCI)</span>
+            <span><b class="trust-check">✓</b> Telemedicine Guidelines 2020</span>
+            <span><b class="trust-check">✓</b> Private & Confidential</span>
+          </div>
+        </div>
+
+        <!-- Serene, Light Visual Showcase Card -->
+        <div class="hero-card-serene" aria-hidden="true">
+          <div class="serene-top-tag">
+            <span class="eyebrow-dot"></span> A safe first step
+          </div>
+
+          <div class="serene-center">
+            <div class="serene-icon-circle">☘</div>
+            <h3>Care that truly listens</h3>
+            <p>Your wellbeing journey, at your own pace.</p>
+          </div>
+
+          <div class="serene-bottom-card">
+            <div>
+              <strong style="font-size: 13px; color: var(--text-main); display: block;">Dr. Ananya Sharma</strong>
+              <span style="font-size: 11.5px; color: var(--primary);">Consultant Psychiatrist · NIMHANS</span>
+            </div>
+            <span class="badge badge-verified">Next slot: Today</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         4. AI WELLNESS GUIDE ("MANOSPRING GUIDE") — CLEAN & LIGHTWEIGHT
+         ========================================================================== -->
+    <section class="section section-alt" id="ai-guide">
+      <div class="wrap ai-assistant-grid">
+        <div class="feature-copy">
+          <span class="eyebrow">Interactive Wellness Companion</span>
+          <h2>Sometimes, the first step is simply talking.</h2>
+          <p>
+            Manospring Guide helps you put what you are feeling into words. Share your thoughts naturally without rush, judgment, or clinical pressure.
+          </p>
+
+          <div class="feature-pills-list">
+            <div class="feature-pill-item">
+              <span>✓</span>
+              <span>Understands everyday expressions, typos, and Indian English</span>
+            </div>
+            <div class="feature-pill-item">
+              <span>✓</span>
+              <span>Evidence-based grounding ideas (breathing, sleep hygiene)</span>
+            </div>
+            <div class="feature-pill-item">
+              <span>✓</span>
+              <span>Never makes definitive diagnoses or replaces professional care</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" onclick="startBooking()">
+              Book a Specialist Consultation →
+            </button>
+            <button type="button" class="btn btn-outline" onclick="resetChat('embedded')">
+              Clear Conversation
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive AI Conversation Card -->
+        <div class="interactive-chat-card">
+          <div class="chat-card-header">
+            <div class="chat-bot-info">
+              <div class="bot-avatar-icon">🌿</div>
+              <div>
+                <strong style="font-size: 14.5px; color: var(--text-main);">Manospring Guide</strong>
+                <span style="font-size: 11px; color: var(--text-muted); display: block;">AI Wellbeing Assistant · Private</span>
+              </div>
+            </div>
+            <button type="button" class="btn btn-subtle btn-sm" onclick="resetChat('embedded')">Reset</button>
+          </div>
+
+          <div class="chat-card-body" id="embedded-chat-messages" role="log" aria-live="polite">
+            <div class="chat-bubble ai">
+              Hello, I'm here to listen. 🌿 What has been on your mind lately? You can share whatever feels comfortable.
+            </div>
+            <div class="chat-quick-options">
+              <button class="chat-quick-btn" onclick="sendAiMessage('embedded', 'I have been feeling stressed and anxious.')">Feeling stressed</button>
+              <button class="chat-quick-btn" onclick="sendAiMessage('embedded', 'I have trouble sleeping peacefully.')">Sleep difficulty</button>
+              <button class="chat-quick-btn" onclick="sendAiMessage('embedded', 'I am feeling low lately.')">Feeling low</button>
+            </div>
+          </div>
+
+          <div class="chat-card-footer">
+            <form class="chat-input-form" id="embedded-chat-form">
+              <input type="text" id="embedded-chat-input" class="chat-text-input" placeholder="Type what's on your mind..." maxlength="1200" autocomplete="off" aria-label="Type message to assistant">
+              <button type="submit" id="embedded-chat-send" class="chat-send-btn" aria-label="Send message">↑</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         5. FIND CARE (VERIFIED SPECIALISTS) — SIMPLIFIED & ELEGANT
+         ========================================================================== -->
+    <section class="section" id="specialists">
+      <div class="wrap">
+        <div class="section-header">
+          <span class="eyebrow">Professional Support</span>
+          <h2 class="section-title">Care from people who listen.</h2>
+          <p class="section-desc">
+            Consult licensed psychiatrists and clinical psychologists verified with the National Medical Commission (NMC) and Rehabilitation Council of India (RCI).
+          </p>
+        </div>
+
+        <!-- Clean Filter Segment Bar -->
+        <div class="filter-bar-clean">
+          <div class="filter-segment-group">
+            <button type="button" class="segment-pill active" onclick="setCategoryFilter('all', this)">All</button>
+            <button type="button" class="segment-pill" onclick="setCategoryFilter('psychiatrist', this)">Psychiatrists</button>
+            <button type="button" class="segment-pill" onclick="setCategoryFilter('psychologist', this)">Clinical Psychologists</button>
+            <button type="button" class="segment-pill" onclick="setCategoryFilter('cbt', this)">Therapy</button>
+          </div>
+
+          <input type="text" id="filter-search" class="search-input-clean" placeholder="Search doctor or focus..." aria-label="Search specialists">
+        </div>
+
+        <!-- Dynamic Specialists Grid -->
+        <div class="specialists-grid" id="specialists-grid">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         6. HOW IT WORKS — 3 AIRY, SIMPLE STEPS
+         ========================================================================== -->
+    <section class="section section-alt" id="how-it-works">
+      <div class="wrap">
+        <div class="section-header">
+          <span class="eyebrow">A Simple Journey</span>
+          <h2 class="section-title">Support that meets you where you are.</h2>
+          <p class="section-desc">
+            Online care that is thoughtful, private, and designed for your comfort.
+          </p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h3>Explore at your pace</h3>
+            <p>Start with a confidential conversation with our AI guide or browse verified clinician profiles directly.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h3>Choose your preferred slot</h3>
+            <p>Pick a convenient time and consultation format—secure video, voice call, or private chat.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h3>Personalized clinical care</h3>
+            <p>Meet your doctor in our private consultation room and receive a clinician-signed care plan.</p>
+          </div>
+        </div>
+
+        <div class="light-notice-box">
+          ℹ️ <strong>Telemedicine Standards:</strong> Outpatient consultations are conducted in compliance with India's Telemedicine Practice Guidelines (March 2020). For acute crises, emergency hospital services (112) or Tele-MANAS (14416) are advised.
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         7. TELEHEALTH SUITE & PATIENT SESSIONS PORTAL
+         ========================================================================== -->
+    <section class="section" id="portal">
+      <div class="wrap">
+        <div class="section-header">
+          <span class="eyebrow">Your Care Hub</span>
+          <h2 class="section-title">Manage sessions & telehealth room.</h2>
+          <p class="section-desc">
+            Enter your active consultation room, view upcoming appointments, or manage your health records.
+          </p>
+        </div>
+
+        <!-- Telehealth Room Quick Launcher Card -->
+        <div class="telehealth-preview-card">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <span class="badge badge-green">Private Telehealth Suite</span>
+              <span style="font-size: 12px; color: var(--text-muted);">Encrypted Audio, Video & Chat</span>
+            </div>
+            <h3 style="font-size: 20px; margin-bottom: 4px;">Join Virtual Consultation Room</h3>
+            <p style="font-size: 13.5px; color: var(--text-muted); margin: 0;">
+              Connect directly with your doctor, mute/unmute audio, or review clinical care notes in real-time.
+            </p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn btn-outline" onclick="openConsultationRoom('MANO-DEMO-ROOM')">
+              Preview Demo Room ↗
+            </button>
+            <button type="button" class="btn btn-primary" onclick="startBooking()">
+              Schedule New Consultation
+            </button>
+          </div>
+        </div>
+
+        <!-- Portal Tabs -->
+        <div class="portal-tabs">
+          <button type="button" class="portal-tab active" data-tab="appointments">My Scheduled Sessions</button>
+          <button type="button" class="portal-tab" data-tab="clinician">Clinician Workspace</button>
+          <button type="button" class="portal-tab" data-tab="privacy">Data & Privacy (DPDPA)</button>
+        </div>
+
+        <!-- Tab 1: Scheduled Appointments -->
+        <div class="portal-tab-content" id="tab-appointments">
+          <div id="patient-appointments-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Tab 2: Clinician Workspace -->
+        <div class="portal-tab-content" id="tab-clinician" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <h4 style="font-size: 16px; margin: 0;">Doctor Consultation Dashboard</h4>
+              <span style="font-size: 12px; color: var(--text-muted);">Review patient notes and incoming schedules.</span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="openModal('clinician-login-modal')">
+              Clinician Login (doctor@manospring.com)
+            </button>
+          </div>
+
+          <div style="overflow-x: auto; background: white; border-radius: var(--radius-md); border: 1px solid var(--border-light); padding: 8px;">
+            <table class="scope-table" style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <thead>
+                <tr style="text-align: left; border-bottom: 1px solid var(--border-light);">
+                  <th style="padding: 10px;">Patient</th>
+                  <th style="padding: 10px;">Date & Time</th>
+                  <th style="padding: 10px;">Mode</th>
+                  <th style="padding: 10px;">Summary</th>
+                  <th style="padding: 10px;">Status</th>
+                  <th style="padding: 10px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="clinician-appointments-table">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 3: DPDPA 2023 Privacy Controls -->
+        <div class="portal-tab-content" id="tab-privacy" style="display: none;">
+          <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 24px;">
+            <h4 style="font-size: 17px; margin-bottom: 6px;">Your Data Rights (DPDPA 2023)</h4>
+            <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 20px;">
+              You have complete ownership over your health records. You may export your consult data or request erasure at any time.
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-soft btn-sm" onclick="showToast('Exporting encrypted consultation archive...')">
+                📥 Download Data Archive
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="openModal('privacy-request-modal')">
+                🗑️ Request Data Erasure
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         8. FAQS & SIMPLE CONTACT
+         ========================================================================== -->
+    <section class="section section-alt" id="faq">
+      <div class="wrap">
+        <div class="section-header">
+          <span class="eyebrow">Helpful Answers</span>
+          <h2 class="section-title">Frequently asked questions.</h2>
+        </div>
+
+        <div class="faq-list">
+          <div class="faq-card">
+            <button type="button" class="faq-trigger" onclick="this.parentElement.classList.toggle('open')">
+              Can the AI assistant diagnose me or prescribe medications?
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              No. Manospring Guide is strictly an AI emotional wellness companion. It cannot provide clinical diagnoses or prescriptions. Only our verified psychiatrists and clinical psychologists can diagnose conditions and recommend medical care.
+            </div>
+          </div>
+
+          <div class="faq-card">
+            <button type="button" class="faq-trigger" onclick="this.parentElement.classList.toggle('open')">
+              Are online mental health consultations valid in India?
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              Yes. Online consultations are legally recognized under the Telemedicine Practice Guidelines issued by the Board of Governors / Medical Council of India (MoHFW) on March 25, 2020. Our practitioners provide valid digital prescriptions where appropriate.
+            </div>
+          </div>
+
+          <div class="faq-card">
+            <button type="button" class="faq-trigger" onclick="this.parentElement.classList.toggle('open')">
+              How are doctors verified on Manospring?
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              All psychiatrists hold an MBBS and MD/DNB in Psychiatry with active registration in the National Medical Commission (NMC) or State Medical Council. Clinical psychologists hold an M.Phil in Clinical Psychology and active Rehabilitation Council of India (RCI) CRR registration.
+            </div>
+          </div>
+
+          <div class="faq-card">
+            <button type="button" class="faq-trigger" onclick="this.parentElement.classList.toggle('open')">
+              Is my conversation private and secure?
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              Yes. All sessions are encrypted and confidential. Under India's Digital Personal Data Protection Act (DPDPA 2023), your health information is processed strictly for care coordination and never sold or shared.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==========================================================================
+       9. CLEAN FOOTER
+       ========================================================================== -->
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span class="brand-emblem" style="background: #235442; width: 30px; height: 30px;">
+              <svg viewBox="0 0 40 40" fill="none" style="width: 18px; height: 18px;">
+                <path d="M20 34C13 28 5 22 7 14C9 7 17 8 20 15C23 8 31 7 33 14C35 22 27 28 20 34Z" fill="#d4eda8"/>
+              </svg>
+            </span>
+            <span style="font-size: 18px; font-weight: 800; color: white;">manospring</span>
+          </div>
+          <p style="font-size: 13px; color: #b3c7bc; line-height: 1.5; margin-bottom: 14px;">
+            Professional mental healthcare and empathetic AI wellbeing guidance across India.
+          </p>
+          <div style="font-size: 12px; color: #8faea0;">
+            Support: care@manospring.com · DPO: dpo@manospring.com
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul class="footer-links">
+            <li><a href="#specialists">Consult Psychiatrists</a></li>
+            <li><a href="#specialists">Clinical Psychologists</a></li>
+            <li><a href="#ai-guide">AI Wellness Guide</a></li>
+            <li><a href="#portal">Telehealth Room</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul class="footer-links">
+            <li><a href="#" onclick="openEmergencyModal(); return false;">Crisis Helplines (24/7)</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#portal">My Sessions</a></li>
+            <li><a href="#faq">FAQs</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Privacy & Ethics</h4>
+          <ul class="footer-links">
+            <li><a href="#" onclick="openModal('privacy-modal'); return false;">Privacy Notice (DPDPA)</a></li>
+            <li><a href="#" onclick="openModal('terms-modal'); return false;">Telemedicine Terms</a></li>
+            <li><a href="#" onclick="openModal('privacy-request-modal'); return false;">Exercise Data Rights</a></li>
+            <li><a href="#" onclick="openModal('clinician-login-modal'); return false;">Clinician Login</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 Manospring Healthcare Pvt. Ltd. · All rights reserved.</div>
+        <div>In crisis, please call <strong>Tele-MANAS at 14416</strong> or <strong>112</strong>.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       10. FLOATING AI LAUNCHER & WIDGET
+       ========================================================================== -->
+  <aside class="floating-widget" id="floating-widget" aria-label="Manospring floating chat">
+    <div class="floating-chat-window" id="floating-chat-window">
+      <div class="chat-card-header" style="background: #f4f8f4;">
+        <div class="chat-bot-info">
+          <div class="bot-avatar-icon" style="width: 32px; height: 32px; font-size: 16px;">🌿</div>
+          <div>
+            <strong style="font-size: 13.5px; color: var(--text-main); display: block;">Manospring Guide</strong>
+            <span style="font-size: 11px; color: var(--text-muted);">AI Wellness Companion</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 4px;">
+          <button type="button" class="btn btn-subtle btn-sm" onclick="resetChat('floating')" title="Restart">↻</button>
+          <button type="button" class="btn btn-subtle btn-sm" onclick="toggleFloatingChat(false)" title="Minimize">−</button>
+        </div>
+      </div>
+
+      <div class="chat-card-body" id="float-chat-messages" role="log" aria-live="polite">
+        <div class="chat-bubble ai">
+          Hello! I'm your AI mental wellness companion. What has been on your mind lately? You can share whatever feels comfortable.
+        </div>
+        <div class="chat-quick-options">
+          <button class="chat-quick-btn" onclick="sendAiMessage('floating', 'I am feeling overwhelmed with stress.')">Feeling stressed</button>
+          <button class="chat-quick-btn" onclick="sendAiMessage('floating', 'I have trouble sleeping.')">Sleep concerns</button>
+          <button class="chat-quick-btn" onclick="sendAiMessage('floating', 'I want to speak with a doctor.')">Book specialist</button>
+        </div>
+      </div>
+
+      <div class="chat-card-footer">
+        <form class="chat-input-form" id="float-chat-form">
+          <input type="text" id="float-chat-input" class="chat-text-input" placeholder="Type a message..." maxlength="1200" autocomplete="off" aria-label="Message to assistant">
+          <button type="submit" id="float-chat-send" class="chat-send-btn" aria-label="Send message">↑</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toggle Launcher -->
+    <button type="button" class="floating-launcher-btn" id="floating-launcher-btn" onclick="toggleFloatingChat()" aria-label="Open Manospring AI chat">
+      <span class="launcher-badge"></span>
+      <svg class="launcher-chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <span class="launcher-close-icon" style="font-size: 22px; font-weight: 300;">✕</span>
+    </button>
+  </aside>
+
+  <!-- ==========================================================================
+       MODALS: BOOKING WIZARD, BIO, EMERGENCY & PRIVACY
+       ========================================================================== -->
+  <!-- Booking Wizard -->
+  <div class="modal-overlay" id="booking-modal" role="dialog" aria-modal="true" aria-labelledby="booking-wizard-title">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="booking-wizard-title">Schedule a Consultation</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('booking-modal')" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="wizard-steps">
+          <span class="wizard-step active"></span>
+          <span class="wizard-step"></span>
+          <span class="wizard-step"></span>
+          <span class="wizard-step"></span>
+        </div>
+        <div id="booking-wizard-content">
+          <!-- Rendered dynamically via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bio Modal -->
+  <div class="modal-overlay" id="bio-modal" role="dialog" aria-modal="true" aria-labelledby="bio-modal-title">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="bio-modal-title">Clinician Profile</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('bio-modal')" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body" id="bio-modal-content">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Emergency 24/7 Helplines -->
+  <div class="modal-overlay" id="emergency-modal" role="dialog" aria-modal="true" aria-labelledby="emergency-title">
+    <div class="modal-container">
+      <div class="modal-header" style="background: #fdf5ef; border-bottom: 1px solid #f6e4d7;">
+        <h3 class="modal-title" id="emergency-title" style="color: #8c3b19;">24/7 Crisis & Emergency Helplines (India)</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('emergency-modal')" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13.5px; color: var(--text-main); margin-bottom: 18px;">
+          If you or someone you know is in acute distress or danger, please connect immediately with these verified toll-free helplines:
+        </p>
+        <div style="display: grid; gap: 12px;">
+          <div style="border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 15px; color: var(--primary-dark); display: block;">Tele-MANAS (Govt. of India)</strong>
+              <span style="font-size: 12px; color: var(--text-muted);">24/7 National Mental Health Toll-Free Line</span>
+            </div>
+            <a href="tel:14416" class="btn btn-primary btn-sm">📞 Call 14416</a>
+          </div>
+
+          <div style="border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 15px; color: var(--text-main); display: block;">National Emergency Services</strong>
+              <span style="font-size: 12px; color: var(--text-muted);">Immediate Police & Ambulance Response</span>
+            </div>
+            <a href="tel:112" class="btn btn-outline btn-sm">🚨 Call 112</a>
+          </div>
+
+          <div style="border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 15px; color: var(--text-main); display: block;">Vandrevala Foundation</strong>
+              <span style="font-size: 12px; color: var(--text-muted);">24/7 Mental Health Crisis Counseling</span>
+            </div>
+            <a href="tel:+919999666555" class="btn btn-outline btn-sm">📞 +91 9999 666 555</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clinician Login Modal -->
+  <div class="modal-overlay" id="clinician-login-modal" role="dialog" aria-modal="true" aria-labelledby="clinician-login-title">
+    <div class="modal-container" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="clinician-login-title">Clinician Portal Access</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('clinician-login-modal')" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="handleClinicianLogin(event)">
+          <div class="form-group">
+            <label class="form-label">Clinician Email</label>
+            <input type="email" id="clinician-email" class="form-input" required value="doctor@manospring.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="clinician-password" class="form-input" required value="demo123">
+          </div>
+          <div style="font-size: 11.5px; color: var(--text-subtle); margin-bottom: 18px;">
+            Demo credentials: <code>doctor@manospring.com</code> / <code>demo123</code>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In to Workspace →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- DPDPA Request Modal -->
+  <div class="modal-overlay" id="privacy-request-modal" role="dialog" aria-modal="true" aria-labelledby="privacy-req-title">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="privacy-req-title">Data Privacy & Erasure Request (DPDPA)</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('privacy-request-modal')" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="submitPrivacyRequest(event)">
+          <div class="form-group">
+            <label class="form-label">Request Type</label>
+            <select id="privacy-req-type" class="form-select">
+              <option value="data_erasure">Complete Erasure of Personal Records</option>
+              <option value="data_access">Summary of Processed Data</option>
+              <option value="consent_withdrawal">Withdraw Telemedicine Consent</option>
+            </select>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="privacy-req-name" class="form-input" required placeholder="Your name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email or Phone</label>
+              <input type="text" id="privacy-req-email" class="form-input" required placeholder="Contact info">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Submit Request to DPO</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Modal -->
+  <div class="modal-overlay" id="privacy-modal" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="privacy-modal-title">Privacy Notice (DPDPA 2023)</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('privacy-modal')" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body" style="font-size: 13.5px; line-height: 1.6; color: var(--text-main);">
+        <p>Manospring operates as a Data Fiduciary under the Digital Personal Data Protection Act (DPDPA 2023). Personal and clinical information is processed exclusively for teleconsultations and care continuity.</p>
+        <p style="margin-top: 10px;">We do not monetize patient health records. For data inquiries, reach our Data Protection Officer at <strong>dpo@manospring.com</strong>.</p>
+        <button type="button" class="btn btn-primary btn-sm" style="margin-top: 16px;" onclick="closeModal('privacy-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms Modal -->
+  <div class="modal-overlay" id="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="terms-modal-title">Telemedicine Terms of Service</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('terms-modal')" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body" style="font-size: 13.5px; line-height: 1.6; color: var(--text-main);">
+        <p>Consultations follow the Telemedicine Practice Guidelines (March 25, 2020) issued by the Board of Governors in supersession of MCI / MoHFW. Online care is suitable for outpatient mental health guidance and non-emergency treatment.</p>
+        <button type="button" class="btn btn-primary btn-sm" style="margin-top: 16px;" onclick="closeModal('terms-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notice" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Main Logic -->
+  <script src="/js/app.js"></script>
+</body>
+</html>

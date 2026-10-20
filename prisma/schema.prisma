@@ -1,0 +1,151 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PATIENT
+  CLINICIAN
+  ADMIN
+}
+
+enum ConsultationMode {
+  VIDEO
+  AUDIO
+  CHAT
+}
+
+enum AppointmentStatus {
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  RESCHEDULED
+  CANCELLED
+}
+
+enum PrivacyRequestType {
+  DATA_ACCESS
+  DATA_ERASURE
+  CONSENT_WITHDRAWAL
+  DATA_CORRECTION
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String?        @unique
+  phone         String?
+  name          String
+  role          Role           @default(PATIENT)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  specialist    Specialist?
+  appointments  Appointment[]
+
+  @@map("users")
+}
+
+model Specialist {
+  id              String         @id @default(uuid())
+  name            String
+  avatar          String?
+  title           String
+  degrees         String
+  council         String
+  regNumber       String         @unique
+  verified        Boolean        @default(true)
+  experienceYears Int
+  languages       String[]
+  specialties     String[]
+  modes           ConsultationMode[]
+  videoFee        Int
+  audioFee        Int
+  chatFee         Int
+  rating          Float          @default(4.9)
+  reviewsCount    Int            @default(0)
+  nextSlot        String
+  availableSlots  String[]
+  bio             String
+  telemedicineOk  Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  userId          String?        @unique
+  user            User?          @relation(fields: [userId], references: [id])
+  appointments    Appointment[]
+
+  @@map("specialists")
+}
+
+model Appointment {
+  id              String            @id
+  specialistId    String
+  specialist      Specialist        @relation(fields: [specialistId], references: [id])
+  patientId       String?
+  patient         User?             @relation(fields: [patientId], references: [id])
+  patientName     String
+  patientPhone    String
+  patientEmail    String?
+  ageGroup        String            @default("25–34")
+  mode            ConsultationMode  @default(VIDEO)
+  date            String
+  timeSlot        String
+  status          AppointmentStatus @default(CONFIRMED)
+  fee             Int
+  paymentMethod   String
+  paymentId       String
+  reason          String?
+  roomId          String            @unique
+  aiPreSummary    String?
+  clinicianNotes  String?
+  consentGranted  Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  consultation    ConsultationRoom?
+
+  @@map("appointments")
+}
+
+model ConsultationRoom {
+  id             String       @id
+  appointmentId  String       @unique
+  appointment    Appointment  @relation(fields: [appointmentId], references: [id])
+  status         String       @default("ready")
+  messages       Json         @default("[]")
+  clinicalNotes  String?
+  prescriptions  String[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("consultation_rooms")
+}
+
+model Inquiry {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  phone       String?
+  subject     String?
+  message     String
+  createdAt   DateTime @default(now())
+
+  @@map("inquiries")
+}
+
+model PrivacyRequest {
+  id           String              @id
+  type         PrivacyRequestType
+  fullName     String
+  email        String?
+  phone        String?
+  details      String?
+  status       String              @default("received")
+  createdAt    DateTime            @default(now())
+
+  @@map("privacy_requests")
+}
