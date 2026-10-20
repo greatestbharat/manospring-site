@@ -12,7 +12,18 @@ type LocalSecrets = {
   groqModel?: string;
 };
 
+const nodeEnv = process.env.NODE_ENV || 'development';
+const isProduction = nodeEnv === 'production';
+
+/**
+ * Local secrets.json is for development only.
+ * On Render/production, use GROQ_API_KEY / GROQ_MODEL environment variables.
+ */
 function readLocalSecrets(): LocalSecrets {
+  if (isProduction) {
+    return {};
+  }
+
   if (!existsSync(secretsPath)) {
     return {};
   }
@@ -30,9 +41,15 @@ const local = readLocalSecrets();
 
 export const config = {
   port: Number(process.env.PORT || 3000),
-  nodeEnv: process.env.NODE_ENV || 'development',
-  // Prefer project-local secrets.json; host platforms can still set env vars
-  groqApiKey: local.groqApiKey || process.env.GROQ_API_KEY || '',
-  groqModel: local.groqModel || process.env.GROQ_MODEL || 'openai/gpt-oss-20b',
+  host: process.env.HOST || '0.0.0.0',
+  nodeEnv,
+  isProduction,
+  // Production: env vars only. Local: secrets.json, then optional env override.
+  groqApiKey: isProduction
+    ? process.env.GROQ_API_KEY || ''
+    : local.groqApiKey || process.env.GROQ_API_KEY || '',
+  groqModel: isProduction
+    ? process.env.GROQ_MODEL || 'openai/gpt-oss-20b'
+    : local.groqModel || process.env.GROQ_MODEL || 'openai/gpt-oss-20b',
   databaseUrl: process.env.DATABASE_URL || ''
 };

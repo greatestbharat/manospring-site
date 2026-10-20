@@ -1,18 +1,23 @@
-# Render Blueprint for 1-Click Deployment
-# Documentation: https://render.com/docs/blueprint-spec
+# Render Blueprint — full-stack Manospring (Express + Vite)
+# Docs: https://render.com/docs/blueprint-spec
 services:
   - type: web
     name: manospring
-    env: node
+    runtime: node
     plan: free
-    buildCommand: npm install && npm run build
+    region: oregon
+    branch: main
+    rootDir: .
+    buildCommand: NPM_CONFIG_PRODUCTION=false npm ci && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: "20.18.1"
       - key: GROQ_MODEL
         value: openai/gpt-oss-20b
       - key: GROQ_API_KEY
-        sync: false # Enter your Groq API key in the Render Dashboard
+        sync: false

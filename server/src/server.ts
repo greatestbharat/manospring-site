@@ -1,9 +1,10 @@
 import app from './app.js';
 import { config } from './config/env.js';
 
-const server = app.listen(config.port, () => {
-  console.log(`🌿 Manospring Healthcare Platform listening on http://localhost:${config.port}`);
+const server = app.listen(config.port, config.host, () => {
+  console.log(`🌿 Manospring Healthcare Platform listening on http://${config.host}:${config.port}`);
   console.log(`📡 Environment: ${config.nodeEnv}`);
+  console.log(`🤖 Groq AI: ${config.groqApiKey ? 'configured' : 'not configured'}`);
 });
 
 process.on('SIGTERM', () => {

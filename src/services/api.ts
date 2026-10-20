@@ -18,9 +18,18 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     headers
   });
 
-  const data = await response.json().catch(() => ({}));
+  const data = (await response.json().catch(() => ({}))) as {
+    error?: string;
+    retryable?: boolean;
+  };
   if (!response.ok) {
-    throw new Error((data as { error?: string }).error || `Request failed with status ${response.status}`);
+    const err = new Error(data.error || `Request failed with status ${response.status}`) as Error & {
+      retryable?: boolean;
+      status?: number;
+    };
+    err.retryable = data.retryable !== false;
+    err.status = response.status;
+    throw err;
   }
 
   return data as T;

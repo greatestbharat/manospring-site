@@ -20,6 +20,8 @@ const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.disable('x-powered-by');
+// Required behind Render / reverse proxies for correct client IPs and rate limiting
+app.set('trust proxy', 1);
 
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -27,8 +29,9 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS']
+  origin: true,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json({ limit: '32kb' }));
@@ -36,7 +39,7 @@ app.use(express.json({ limit: '32kb' }));
 // Global rate limiting for all API routes
 app.use('/api/', globalApiLimiter);
 
-// Health check endpoint
+// Health check endpoint (used by Render)
 app.get('/api/health', (_req, res) => {
   res.json({
     ok: true,
@@ -59,18 +62,27 @@ app.use('/api/contact', contactRoutes);
 app.post('/api/privacy/request', (req, res, next) => contactController.submitPrivacyRequest(req, res, next));
 app.use('/api/auth', authRoutes);
 
-// Static client files
+// Static client files (Vite build output)
 const clientDist = path.resolve(__dirname, '../../dist/client');
-app.use(express.static(clientDist));
-app.use(express.static(path.resolve(__dirname, '../../public')));
+const publicDir = path.resolve(__dirname, '../../public');
 
-// SPA Fallback for client-side routing
+app.use(express.static(clientDist, {
+  index: false,
+  maxAge: config.isProduction ? '1h' : 0
+}));
+app.use(express.static(publicDir, {
+  index: false,
+  maxAge: config.isProduction ? '1h' : 0
+}));
+
+// SPA fallback for client-side routing (never intercept /api)
 app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
   if (req.path.startsWith('/api/')) return next();
+
   res.sendFile(path.resolve(clientDist, 'index.html'), (err) => {
     if (err) {
-      // If dist/client is not built yet, fallback to public/index.html
-      res.sendFile(path.resolve(__dirname, '../../public/index.html'), next);
+      res.sendFile(path.resolve(publicDir, 'index.html'), next);
     }
   });
 });

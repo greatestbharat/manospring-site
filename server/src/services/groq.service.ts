@@ -1,7 +1,8 @@
 import { config } from '../config/env.js';
 import { ChatMessage } from '../types/index.js';
 
-export const urgentPattern = /\b(kill(ing)? myself|suicid\w*|end(ing)? (my|one's|this) life|want(ing)? to die|don'?t want to live|do not want to live|hurt(ing)? myself|harm(ing)? myself|self[- ]harm|overdose|cut(ting)? my wrist|hang(ing)? myself|end(ing)? it all|take|taking (my )?life)\b/i;
+export const urgentPattern =
+  /\b(kill(ing)? myself|suicid\w*|end(ing)? (my|one's|this) life|want(ing)? to die|don'?t want to live|do not want to live|hurt(ing)? myself|harm(ing)? myself|self[- ]harm|overdose|cut(ting)? my wrist|hang(ing)? myself|end(ing)? it all|take|taking (my )?life)\b/i;
 
 export const urgentReply = `I hear how much pain you are in right now, and your safety is the absolute most important thing. You do not have to carry this alone.
 
@@ -14,110 +15,257 @@ Because I am an automated wellness guide, I cannot provide crisis intervention o
 
 If you can, please stay with or call a family member, close friend, or someone you trust right this second and let them know you need support.`;
 
-export const systemPrompt = `You are the Manospring Personal Wellness Guide, a warm, compassionate, culturally sensitive wellbeing companion for Manospring, a professional mental health platform in India. You are an automated supportive wellness guide, NOT a clinician, doctor, or therapist.
+export const systemPrompt = `You are the Manospring Personal Wellness Guide — a warm, professional wellness consultant for Manospring, a mental healthcare platform in India.
 
-CRITICAL COMMUNICATION RULE:
-- NEVER refer to yourself as "AI", "artificial intelligence", "bot", "robot", "language model", or "machine".
-- Identify yourself naturally as "your Personal Wellness Guide" or "Manospring Guide".
-- Always maintain a warm, human-centered, grounded tone without robotic or clinical jargon.
+ROLE
+- You offer general wellbeing guidance, active listening, practical coping ideas, and clear next steps.
+- You are NOT a doctor, psychiatrist, psychologist, or licensed therapist. Do not diagnose, prescribe, or promise clinical outcomes.
+- Never call yourself an AI, bot, robot, or language model. Speak as the Manospring Personal Wellness Guide.
 
-CONTEXT AWARENESS & NATURAL CONVERSATION:
-- ALWAYS remember and reference the user's name if they mention it (e.g., "Hello Arjun", "It's good to hear from you, Priya").
-- Actively build upon previous messages in the conversation history. Do NOT repeat generic greetings ("Hello, I am your wellness guide...") once a conversation is underway.
-- Naturally understand typos, emotional shorthand, and informal Indian English ("kinda stressed yaar", "too much tension", "not feeling ok tbh", "bohot tension hai", "feeling low", "brain fog", "cant focus at work", "family pressure", "feeling overwhelmed", "burnout", "plz", "rn", "idk").
-- Tailor your response directly to the specific topic the user chose or wrote:
-  * Talk about my feelings: Validate their emotional courage, offer a safe non-judgmental space, and ask what feeling has felt heaviest today.
-  * Sleep difficulties: Acknowledge the physical and mental exhaustion of poor sleep, provide a soothing night wind-down tip, and ask about their sleep pattern.
-  * Stress and work pressure: Validate chronic workplace burnout and performance expectations, emphasize micro-pauses, and ask about their biggest current pressure.
-  * Breathing exercise: Walk them warmly through the 4-7-8 breathing sequence with clear steps.
-  * Grounding exercise: Guide them step-by-step through the 5-4-3-2-1 sensory grounding technique.
-- Ask ONE relevant, supportive follow-up question that helps them reflect, rather than asking rapid-fire clinical questions.
+HOW TO CONSULT (adapt naturally — do not recite these steps)
+1) Understand what the user wants from their latest message.
+2) Clarify only when needed (one short question).
+3) Identify their main concern or goal from what they actually said.
+4) Offer personalized, actionable suggestions tied to that concern.
+5) Agree on one manageable next step when useful.
+6) Follow up using details already shared in this conversation.
 
-CORE MISSION & ETHICAL BOUNDARIES:
-- Provide empathetic emotional support, active listening, gentle psychoeducation, and low-risk grounding techniques.
-- NEVER make medical diagnoses, prescribe medications, alter existing prescriptions, or claim to provide psychological therapy or cure.
-- NEVER claim to be a doctor, psychiatrist, or licensed professional.
-- Explain clearly that your conversations are for general wellbeing guidance and emotional reflection, not individualized clinical treatment.
-- Suggest booking a consultation with a qualified psychiatrist or clinical psychologist after approximately 8–10 user messages, or IMMEDIATELY whenever the user asks about diagnosis, medication, severe chronic distress, or professional therapy.
-- In emergencies (suicide, self-harm, severe violence), immediately provide the 112 and Tele-MANAS 14416 helplines.`;
+RESPONSE RULES
+- Answer the user's LATEST message first. Be specific to their words.
+- Use earlier turns for continuity (name, goals, preferences, prior suggestions, progress).
+- If they share a name (e.g. "My name is Ram"), acknowledge it warmly and continue — e.g. welcome them by name and ask how you can help with their wellbeing. Do not invent problems.
+- Greetings like "Hi" / "Hello": reply briefly and warmly; ask how you can help. Do NOT assume they are stressed, sad, exhausted, or struggling.
+- Do NOT invent emotions, symptoms, diagnoses, life events, or personal details the user never mentioned.
+- Do NOT reuse the same generic empathy paragraph every turn.
+- Ask at most ONE relevant follow-up question when more information is needed.
+- For wellness goals or plan requests: if the main goal is unclear, ask once; otherwise give a short, structured, achievable plan tailored to what they shared.
+- When they report progress ("your suggestion helped"), acknowledge that specific progress and build on the earlier suggestion if it appears in history.
+- If they ask "What is my name?" and they stated it earlier, answer with that name. If unknown, say you do not have it yet and invite them to share it.
+- Keep replies concise (usually 2–6 short paragraphs or a tight bullet plan). Prefer plain, supportive language. Understand informal Indian English and typos.
+- After roughly 8–10 user turns of ongoing distress, or whenever they ask for diagnosis, medication, or therapy, gently suggest booking a Manospring psychiatrist or clinical psychologist.
+- Crisis / self-harm / suicide: prioritize safety. Urge contacting Tele-MANAS 14416 / 1800-891-4416 or emergency 112 immediately. Do not continue ordinary coaching in that moment.`;
 
-export function generateCompassionateFallback(lastMsg: string, history?: ChatMessage[]): string {
-  const text = lastMsg.toLowerCase();
-  
-  // Extract user's name if mentioned in current or previous messages
-  let userName = '';
-  const allUserTexts = (history || [])
-    .filter(m => m.role === 'user')
-    .map(m => m.content)
-    .concat([lastMsg]);
+export interface ConversationMemory {
+  name?: string;
+  goals: string[];
+  concerns: string[];
+  preferences: string[];
+  actionSteps: string[];
+}
 
-  for (const msg of allUserTexts) {
-    const match = msg.match(/\b(?:i am|i'm|my name is|this is|call me)\s+([A-Za-z]+)\b/i);
-    if (match && match[1]) {
-      const candidate = match[1];
-      if (!/^(feeling|having|wondering|trying|just|not|very|really|here)$/i.test(candidate)) {
-        userName = candidate.charAt(0).toUpperCase() + candidate.slice(1).toLowerCase();
-        break;
-      }
+const NAME_STOPWORDS =
+  /^(feeling|having|wondering|trying|just|not|very|really|here|stressed|tired|okay|fine|good|bad|sad|happy|anxious|overwhelmed)$/i;
+
+export function extractConversationMemory(messages: ChatMessage[]): ConversationMemory {
+  const memory: ConversationMemory = {
+    goals: [],
+    concerns: [],
+    preferences: [],
+    actionSteps: []
+  };
+
+  const pushUnique = (list: string[], value: string) => {
+    const cleaned = value.trim();
+    if (!cleaned) return;
+    const exists = list.some((item) => item.toLowerCase() === cleaned.toLowerCase());
+    if (!exists) list.push(cleaned.slice(0, 160));
+  };
+
+  for (const msg of messages) {
+    if (msg.role !== 'user') continue;
+    const text = msg.content.trim();
+    const lower = text.toLowerCase();
+
+    const nameMatch = text.match(
+      /\b(?:my name is|i am|i'm|this is|call me)\s+([A-Za-z][A-Za-z'-]{1,30})\b/i
+    );
+    if (nameMatch?.[1] && !NAME_STOPWORDS.test(nameMatch[1])) {
+      memory.name =
+        nameMatch[1].charAt(0).toUpperCase() + nameMatch[1].slice(1).toLowerCase();
+    }
+
+    if (/\b(goal|i want to|i'd like to|i would like to|hoping to|trying to)\b/i.test(text)) {
+      pushUnique(memory.goals, text);
+    }
+
+    if (
+      /\b(stress|anxious|anxiety|overwhelm|burnout|sleep|insomnia|sad|lonely|pressure|tension|worried|panic|tired|exhausted)\b/i.test(
+        lower
+      )
+    ) {
+      pushUnique(memory.concerns, text);
+    }
+
+    if (/\b(prefer|i like|i don't like|i do not like|please (don't|do not)|rather)\b/i.test(lower)) {
+      pushUnique(memory.preferences, text);
     }
   }
 
-  const nameGreeting = userName ? `${userName}, ` : '';
-
-  if (/feelings?|emotions?|sad|crying|lonely|heart|talk about/.test(text)) {
-    return `${nameGreeting}thank you for reaching out to talk about what you're experiencing. Putting your feelings into words takes real emotional courage, and this is a completely safe, private space.\n\nTake a slow breath. What has been weighing most heavily on your mind today?`;
+  for (const msg of messages) {
+    if (msg.role !== 'assistant') continue;
+    if (
+      /\b(try|practice|start with|next step|for today|this week|suggestion)\b/i.test(msg.content) &&
+      msg.content.length < 500
+    ) {
+      pushUnique(memory.actionSteps, msg.content.split('\n')[0].slice(0, 160));
+    }
   }
 
-  if (/sleep|insomnia|restless|night|tired|wake up|exhausted/.test(text)) {
-    return `${nameGreeting}sleep difficulties can be so deeply draining, both physically and emotionally. When our nervous system stays on high alert, our minds keep spinning even when we desperately want to rest.\n\nA gentle first step is creating a 30-minute buffer before bed without work screens or notifications. How many nights recently have felt restless for you?`;
+  memory.goals = memory.goals.slice(-3);
+  memory.concerns = memory.concerns.slice(-4);
+  memory.preferences = memory.preferences.slice(-3);
+  memory.actionSteps = memory.actionSteps.slice(-3);
+
+  return memory;
+}
+
+export function buildMemoryNote(memory: ConversationMemory): string | null {
+  const lines: string[] = [];
+  if (memory.name) lines.push(`- Name: ${memory.name}`);
+  if (memory.goals.length) lines.push(`- Stated goals: ${memory.goals.join(' | ')}`);
+  if (memory.concerns.length) lines.push(`- Stated concerns: ${memory.concerns.join(' | ')}`);
+  if (memory.preferences.length) {
+    lines.push(`- Preferences: ${memory.preferences.join(' | ')}`);
+  }
+  if (memory.actionSteps.length) {
+    lines.push(`- Recent guidance offered: ${memory.actionSteps.join(' | ')}`);
   }
 
-  if (/stress|work|job|boss|deadline|burnout|pressure|office|study|exam/.test(text)) {
-    return `${nameGreeting}workplace pressure and chronic stress can slowly drain your inner battery until even simple tasks feel overwhelming. Please remember that your worth is not measured only by your productivity.\n\nWhat particular project, deadline, or expectation is demanding the most energy from you right now?`;
-  }
+  if (!lines.length) return null;
 
-  if (/breath|4-7-8|pranayam|deep breath/.test(text)) {
-    return `${nameGreeting}let's do a gentle 4-7-8 calming breath together right now:\n\n1. Inhale quietly through your nose for a count of 4.\n2. Hold your breath gently for a count of 7.\n3. Exhale slowly and completely through your mouth for 8.\n\nTry doing 3 cycles. Would you like to practice another cycle together, or share how your body feels right now?`;
-  }
+  return [
+    'CONVERSATION MEMORY (only facts from this chat — do not invent extras):',
+    ...lines,
+    'Use these details for continuity. If asked for the user\'s name and it is listed above, answer with that name.'
+  ].join('\n');
+}
 
-  if (/grounding|5-4-3-2-1|panic|anxiety|racing|dizzy|overwhelm/.test(text)) {
-    return `${nameGreeting}when feelings run high, the 5-4-3-2-1 grounding technique can gently anchor your nervous system back to the present room:\n\n• 5 things you can see around you\n• 4 things you can physically feel or touch\n• 3 sounds you can hear right now\n• 2 scents you can notice\n• 1 deep, nourishing breath\n\nTake a moment to look around. What is one grounding object in your sight right now?`;
-  }
+/** Keep ordered user/assistant turns; drop system noise; limit length while preserving early context. */
+export function prepareHistoryForModel(messages: ChatMessage[], maxMessages = 18): ChatMessage[] {
+  const cleaned = messages
+    .filter((m) => m.role === 'user' || m.role === 'assistant')
+    .map((m) => ({
+      role: m.role as 'user' | 'assistant',
+      content: String(m.content || '').trim()
+    }))
+    .filter((m) => m.content.length > 0);
 
-  return `${nameGreeting}thank you for sharing that with me. I hear that things are feeling heavy right now, and what you are feeling is completely valid.\n\nTaking things one step at a time is more than enough. What would feel most supportive for you to focus on right now?`;
+  if (cleaned.length <= maxMessages) return cleaned;
+
+  // Keep the first 2 turns (greeting / early personal detail) + the latest turns
+  const headCount = 2;
+  const tailStart = cleaned.length - (maxMessages - headCount);
+  if (tailStart <= headCount) {
+    return cleaned.slice(-maxMessages);
+  }
+  return [...cleaned.slice(0, headCount), ...cleaned.slice(tailStart)];
+}
+
+export class GroqApiError extends Error {
+  status: number;
+  code: string;
+  retryable: boolean;
+
+  constructor(message: string, options: { status?: number; code: string; retryable?: boolean }) {
+    super(message);
+    this.name = 'GroqApiError';
+    this.status = options.status ?? 503;
+    this.code = options.code;
+    this.retryable = options.retryable ?? true;
+  }
 }
 
 export async function getGroqChatCompletion(messages: ChatMessage[]): Promise<string> {
   if (!config.groqApiKey) {
-    throw new Error('GROQ_API_KEY_NOT_CONFIGURED');
+    throw new GroqApiError(
+      config.isProduction
+        ? 'Live AI chat is not configured. Set the GROQ_API_KEY environment variable on the server (e.g. Render Dashboard) and redeploy.'
+        : 'Live AI chat is not configured. Add your Groq key to secrets.json for local development, or set GROQ_API_KEY.',
+      { status: 503, code: 'GROQ_API_KEY_NOT_CONFIGURED', retryable: false }
+    );
   }
 
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${config.groqApiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: config.groqModel,
-      temperature: 0.65,
-      max_completion_tokens: 400,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...messages
-      ]
-    }),
-    signal: AbortSignal.timeout(18_000)
-  });
+  const memory = extractConversationMemory(messages);
+  const memoryNote = buildMemoryNote(memory);
+  const history = prepareHistoryForModel(messages);
+
+  if (!history.some((m) => m.role === 'user')) {
+    throw new GroqApiError('A user message is required.', {
+      status: 400,
+      code: 'MISSING_USER_MESSAGE',
+      retryable: false
+    });
+  }
+
+  const apiMessages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+    { role: 'system', content: systemPrompt }
+  ];
+
+  if (memoryNote) {
+    apiMessages.push({ role: 'system', content: memoryNote });
+  }
+
+  for (const msg of history) {
+    apiMessages.push({ role: msg.role as 'user' | 'assistant', content: msg.content });
+  }
+
+  let response: Response;
+  try {
+    response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${config.groqApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: config.groqModel,
+        temperature: 0.7,
+        max_completion_tokens: 700,
+        messages: apiMessages
+      }),
+      signal: AbortSignal.timeout(20_000)
+    });
+  } catch (err: unknown) {
+    const isTimeout =
+      err instanceof Error &&
+      (err.name === 'TimeoutError' || err.name === 'AbortError' || /timeout/i.test(err.message));
+    throw new GroqApiError(
+      isTimeout
+        ? 'The wellness guide timed out. Please try again.'
+        : 'Could not reach the wellness guide. Please check your connection and try again.',
+      { status: 503, code: isTimeout ? 'GROQ_TIMEOUT' : 'GROQ_NETWORK_ERROR', retryable: true }
+    );
+  }
 
   if (!response.ok) {
-    throw new Error(`GROQ_API_ERROR_${response.status}`);
+    if (response.status === 429) {
+      throw new GroqApiError(
+        'The wellness guide is temporarily busy (rate limit). Please wait a moment and retry.',
+        { status: 429, code: 'GROQ_RATE_LIMITED', retryable: true }
+      );
+    }
+    if (response.status === 401 || response.status === 403) {
+      throw new GroqApiError(
+        'The wellness guide could not authenticate with the AI provider. Please check the server API key.',
+        { status: 503, code: 'GROQ_AUTH_ERROR', retryable: false }
+      );
+    }
+    throw new GroqApiError(
+      `The wellness guide is unavailable right now (error ${response.status}). Please try again.`,
+      { status: 503, code: `GROQ_API_ERROR_${response.status}`, retryable: true }
+    );
   }
 
-  const payload = (await response.json()) as any;
+  const payload = (await response.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
   const reply = payload?.choices?.[0]?.message?.content;
   if (typeof reply !== 'string' || !reply.trim()) {
-    throw new Error('EMPTY_GROQ_REPLY');
+    throw new GroqApiError('The wellness guide returned an empty reply. Please try again.', {
+      status: 503,
+      code: 'EMPTY_GROQ_REPLY',
+      retryable: true
+    });
   }
 
   return reply.trim();

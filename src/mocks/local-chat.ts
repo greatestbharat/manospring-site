@@ -1,5 +1,11 @@
 import { ChatMessage } from '../types';
 
+/**
+ * Browser-only wellness engine for GitHub Pages static builds.
+ * Used when there is no Express/Groq backend. Not a substitute for live AI —
+ * it is intentionally intent-aware so Pages demos stay coherent.
+ */
+
 export const urgentPattern =
   /\b(kill(ing)? myself|suicid\w*|end(ing)? (my|one's|this) life|want(ing)? to die|don'?t want to live|do not want to live|hurt(ing)? myself|harm(ing)? myself|self[- ]harm|overdose|cut(ting)? my wrist|hang(ing)? myself|end(ing)? it all|take|taking (my )?life)\b/i;
 
@@ -14,49 +20,49 @@ Because I am an automated wellness guide, I cannot provide crisis intervention o
 
 If you can, please stay with or call a family member, close friend, or someone you trust right this second and let them know you need support.`;
 
-export function generateCompassionateFallback(lastMsg: string, history?: ChatMessage[]): string {
-  const text = lastMsg.toLowerCase();
+const NAME_STOPWORDS =
+  /^(feeling|having|wondering|trying|just|not|very|really|here|stressed|tired|okay|fine|good|bad|sad|happy|anxious|overwhelmed)$/i;
 
-  let userName = '';
-  const allUserTexts = (history || [])
-    .filter((m) => m.role === 'user')
-    .map((m) => m.content)
-    .concat([lastMsg]);
+type Memory = {
+  name?: string;
+  lastSuggestion?: string;
+  concerns: string[];
+  goals: string[];
+};
 
-  for (const msg of allUserTexts) {
-    const match = msg.match(/\b(?:i am|i'm|my name is|this is|call me)\s+([A-Za-z]+)\b/i);
-    if (match && match[1]) {
-      const candidate = match[1];
-      if (!/^(feeling|having|wondering|trying|just|not|very|really|here)$/i.test(candidate)) {
-        userName = candidate.charAt(0).toUpperCase() + candidate.slice(1).toLowerCase();
-        break;
-      }
+function extractMemory(messages: ChatMessage[]): Memory {
+  const memory: Memory = { concerns: [], goals: [] };
+
+  for (const msg of messages) {
+    if (msg.role !== 'user') continue;
+    const text = msg.content.trim();
+    const nameMatch = text.match(
+      /\b(?:my name is|i am|i'm|this is|call me)\s+([A-Za-z][A-Za-z'-]{1,30})\b/i
+    );
+    if (nameMatch?.[1] && !NAME_STOPWORDS.test(nameMatch[1])) {
+      memory.name =
+        nameMatch[1].charAt(0).toUpperCase() + nameMatch[1].slice(1).toLowerCase();
+    }
+    if (/\b(stress|work|time|sleep|anxious|overwhelm|burnout|sad|lonely)\b/i.test(text)) {
+      memory.concerns.push(text);
+    }
+    if (/\b(goal|plan|want to|would like to)\b/i.test(text)) {
+      memory.goals.push(text);
     }
   }
 
-  const nameGreeting = userName ? `${userName}, ` : '';
-
-  if (/feelings?|emotions?|sad|crying|lonely|heart|talk about/.test(text)) {
-    return `${nameGreeting}thank you for reaching out to talk about what you're experiencing. Putting your feelings into words takes real emotional courage, and this is a completely safe, private space.\n\nTake a slow breath. What has been weighing most heavily on your mind today?`;
+  for (const msg of [...messages].reverse()) {
+    if (msg.role === 'assistant' && /\b(try|practice|next step|for today)\b/i.test(msg.content)) {
+      memory.lastSuggestion = msg.content.split('\n')[0].slice(0, 140);
+      break;
+    }
   }
 
-  if (/sleep|insomnia|restless|night|tired|wake up|exhausted/.test(text)) {
-    return `${nameGreeting}sleep difficulties can be so deeply draining, both physically and emotionally. When our nervous system stays on high alert, our minds keep spinning even when we desperately want to rest.\n\nA gentle first step is creating a 30-minute buffer before bed without work screens or notifications. How many nights recently have felt restless for you?`;
-  }
+  return memory;
+}
 
-  if (/stress|work|job|boss|deadline|burnout|pressure|office|study|exam/.test(text)) {
-    return `${nameGreeting}workplace pressure and chronic stress can slowly drain your inner battery until even simple tasks feel overwhelming. Please remember that your worth is not measured only by your productivity.\n\nWhat particular project, deadline, or expectation is demanding the most energy from you right now?`;
-  }
-
-  if (/breath|4-7-8|pranayam|deep breath/.test(text)) {
-    return `${nameGreeting}let's do a gentle 4-7-8 calming breath together right now:\n\n1. Inhale quietly through your nose for a count of 4.\n2. Hold your breath gently for a count of 7.\n3. Exhale slowly and completely through your mouth for 8.\n\nTry doing 3 cycles. Would you like to practice another cycle together, or share how your body feels right now?`;
-  }
-
-  if (/grounding|5-4-3-2-1|panic|anxiety|racing|dizzy|overwhelm/.test(text)) {
-    return `${nameGreeting}when feelings run high, the 5-4-3-2-1 grounding technique can gently anchor your nervous system back to the present room:\n\n• 5 things you can see around you\n• 4 things you can physically feel or touch\n• 3 sounds you can hear right now\n• 2 scents you can notice\n• 1 deep, nourishing breath\n\nTake a moment to look around. What is one grounding object in your sight right now?`;
-  }
-
-  return `${nameGreeting}thank you for sharing that with me. I hear that things are feeling heavy right now, and what you are feeling is completely valid.\n\nTaking things one step at a time is more than enough. What would feel most supportive for you to focus on right now?`;
+function withName(memory: Memory, sentence: string): string {
+  return memory.name ? sentence.replace(/^/, `${memory.name}, `).replace(`${memory.name}, ${memory.name}`, memory.name) : sentence;
 }
 
 export function processLocalChat(messages: ChatMessage[]) {
@@ -72,23 +78,151 @@ export function processLocalChat(messages: ChatMessage[]) {
       urgent: true,
       crisis: true,
       suggestAppointment: false,
-      source: 'local_wellness_engine'
+      source: 'crisis_safety'
     };
   }
 
+  const memory = extractMemory(messages);
+  const text = lastUser.content.trim();
+  const lower = text.toLowerCase();
   const userTurns = messages.filter((m) => m.role === 'user').length;
   const wantsConsultation =
-    /\b(book|appointment|psychiat|doctor|therapist|clinician|cost|fees|consult)\b/i.test(
-      lastUser.content
-    );
-  const suggestAppointment = userTurns >= 8 || wantsConsultation;
+    /\b(book|appointment|psychiat|doctor|therapist|clinician|cost|fees|consult)\b/i.test(text);
+
+  let reply = '';
+
+  // Name recall
+  if (/\b(what('?s| is) my name|do you remember my name|who am i)\b/i.test(lower)) {
+    reply = memory.name
+      ? `Your name is ${memory.name}. How would you like to continue with your wellbeing today?`
+      : `I do not have your name yet in this conversation. What should I call you?`;
+  }
+  // Greeting only
+  else if (/^(hi|hello|hey|namaste|good (morning|afternoon|evening))[\s!.]*$/i.test(lower)) {
+    reply = memory.name
+      ? `Hi ${memory.name} — welcome back. How can I help with your wellbeing today?`
+      : `Hi there — welcome. I am your Personal Wellness Guide. How can I help with your wellbeing today?`;
+  }
+  // Introduces name
+  else if (/\b(my name is|i am|i'm|call me)\s+[A-Za-z]/i.test(text) && memory.name) {
+    reply = `Nice to meet you, ${memory.name}! How can I help you with your wellbeing today?`;
+  }
+  // Progress update
+  else if (/\b(helped|helpful|better|worked|tried your suggestion|progress)\b/i.test(lower)) {
+    const prior = memory.lastSuggestion
+      ? ` I am glad that earlier suggestion was useful.`
+      : '';
+    reply = `That is encouraging to hear.${prior} What felt most helpful, and would you like to build on it or try a related next step?`;
+  }
+  // Ask for plan
+  else if (/\b(wellness plan|make a (simple )?plan|create a plan|daily plan)\b/i.test(lower)) {
+    if (!memory.concerns.length && !memory.goals.length) {
+      reply = `I can put together a simple wellness plan. What is the main goal you want it to support — for example sleep, work stress, energy, or mood?`;
+    } else {
+      const focus =
+        memory.goals[memory.goals.length - 1] ||
+        memory.concerns[memory.concerns.length - 1] ||
+        'your wellbeing';
+      reply = [
+        `Here is a simple, achievable plan based on what you shared about ${focus}:`,
+        ``,
+        `1. Morning (5 min): Note one priority for the day and one thing you will intentionally not do.`,
+        `2. Midday (3 min): Pause for a few slow breaths and a short stretch away from screens.`,
+        `3. Evening (10 min): Wind down without work messages; jot one win and one worry to revisit tomorrow.`,
+        `4. This week: Protect two 25-minute focus blocks on your hardest task first.`,
+        ``,
+        `Would you like this tuned more toward sleep, stress, or focus?`
+      ].join('\n');
+    }
+  }
+  // Time management / workload
+  else if (/\b(too much work|cannot manage|can't manage|time management|priorit)\b/i.test(lower)) {
+    reply = [
+      withName(
+        memory,
+        `It sounds like the workload is outpacing the time you have — that is a prioritization problem we can make more manageable.`
+      ),
+      ``,
+      `A practical start:`,
+      `• List today's tasks and mark only 1–3 as must-do.`,
+      `• Do the hardest must-do in a 25-minute focus block first.`,
+      `• Park the rest on a "later" list so they stop competing for attention.`,
+      ``,
+      `What is the single most important task on your plate right now?`
+    ].join('\n');
+  }
+  // Work stress
+  else if (/\b(stress|stressed).*(work|job|office)|work.*(stress|pressure)|burnout\b/i.test(lower)) {
+    reply = [
+      withName(
+        memory,
+        `Work stress can feel relentless when demands keep stacking up. Thank you for naming that clearly.`
+      ),
+      ``,
+      `What part of work is weighing on you most right now — deadlines, workload volume, people dynamics, or uncertainty?`
+    ].join('\n');
+  }
+  // Sleep
+  else if (/\b(sleep|insomnia|restless|wake up)\b/i.test(lower)) {
+    reply = [
+      withName(memory, `Sleep trouble is draining both physically and mentally.`),
+      ``,
+      `One gentle step: keep a 30-minute screen-light buffer before bed.`,
+      `How many nights lately have felt restless for you?`
+    ].join('\n');
+  }
+  // Breathing / grounding quick topics
+  else if (/\b(breath|4-7-8|pranayam)\b/i.test(lower)) {
+    reply = [
+      withName(memory, `Let's do a calm 4-7-8 breath together:`),
+      `1. Inhale through your nose for 4.`,
+      `2. Hold gently for 7.`,
+      `3. Exhale through your mouth for 8.`,
+      `Try 3 cycles, then tell me how your body feels.`
+    ].join('\n');
+  } else if (/\b(grounding|5-4-3-2-1)\b/i.test(lower)) {
+    reply = [
+      withName(memory, `Here is a quick 5-4-3-2-1 grounding pass:`),
+      `• 5 things you can see`,
+      `• 4 you can feel`,
+      `• 3 you can hear`,
+      `• 2 you can smell`,
+      `• 1 slow breath`,
+      `What is one object you can see right now?`
+    ].join('\n');
+  }
+  // Feelings without inventing extras
+  else if (/\b(feel|feeling|sad|lonely|anxious|anxiety|overwhelm|low)\b/i.test(lower)) {
+    reply = [
+      withName(memory, `Thank you for sharing how you have been feeling.`),
+      ``,
+      `I am here with you. What feels heaviest about it today?`
+    ].join('\n');
+  }
+  // Unclear / short non-greeting
+  else if (text.length < 3 || /^(ok|okay|hmm|idk|dunno)\.?$/i.test(lower)) {
+    reply = memory.name
+      ? `${memory.name}, I want to make sure I understand — could you share a bit more about what you would like help with?`
+      : `I want to make sure I understand — could you share a bit more about what you would like help with?`;
+  } else {
+    reply = [
+      withName(memory, `Thanks for sharing that.`),
+      ``,
+      `I hear you. What would be most useful next — understanding it better, a practical tip, or a simple plan?`
+    ].join('\n');
+  }
+
+  // Clean accidental double-name from withName edge cases
+  if (memory.name) {
+    reply = reply.replace(new RegExp(`${memory.name},\\s*${memory.name}`, 'g'), memory.name);
+  }
 
   return {
     ok: true,
-    reply: generateCompassionateFallback(lastUser.content, messages),
+    reply,
     urgent: false,
     crisis: false,
-    suggestAppointment,
+    suggestAppointment: userTurns >= 8 || wantsConsultation,
     source: 'local_wellness_engine'
   };
 }

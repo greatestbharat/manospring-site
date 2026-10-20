@@ -12,6 +12,7 @@
     "build:server": "tsc -p tsconfig.server.json",
     "build": "npm run build:client && npm run build:server",
     "start": "node dist/server/server.js",
+    "start:prod": "NODE_ENV=production node dist/server/server.js",
     "test": "node --import tsx tests/api.test.ts",
     "preview:pages": "npm run build:pages && vite preview --base /manospring-site/"
   },

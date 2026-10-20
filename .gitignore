@@ -7,10 +7,13 @@ node_modules/
 secrets.json
 .env
 .env.*
+!.env.example
 *.pem
 *.key
 *.cert
 *.crt
+**/secrets.local.*
+*.local.json
 
 # Production build artifacts
 dist/

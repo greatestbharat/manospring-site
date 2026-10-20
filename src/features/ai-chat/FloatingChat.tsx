@@ -108,7 +108,7 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
 
   const initialGreeting: ChatMessage = {
     role: 'assistant',
-    content: "Hello. I am your Personal Wellness Guide. Take a slow breath—this is a private, confidential space just for you.\n\nWhat would you like to explore today? You can choose a topic below or type freely."
+    content: "Hello — I am your Personal Wellness Guide. This is a private, confidential space.\n\nHow can I help with your wellbeing today? You can choose a topic below or type freely."
   };
 
   const [messages, setMessages] = useState<ChatMessage[]>([initialGreeting]);
@@ -116,6 +116,7 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
+  const [canRetry, setCanRetry] = useState(false);
   const [showConsultationSuggestion, setShowConsultationSuggestion] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
@@ -195,18 +196,52 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
     return () => clearInterval(interval);
   }, [breathActive, breathPhase]);
 
+  const requestGuideReply = async (conversation: ChatMessage[]) => {
+    setBusy(true);
+    setErrorNotice(null);
+    setCanRetry(false);
+
+    try {
+      const data = await chatService.sendMessage(conversation);
+
+      if (data.urgent) {
+        setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+        setTimestamps((prev) => [...prev, formatTime(new Date())]);
+        triggerEmergency();
+        return;
+      }
+
+      setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+      setTimestamps((prev) => [...prev, formatTime(new Date())]);
+
+      if (data.suggestAppointment || conversation.filter((m) => m.role === 'user').length >= 8) {
+        setShowConsultationSuggestion(true);
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : 'Could not reach the wellness guide. Please try again.';
+      setErrorNotice(message);
+      setCanRetry(true);
+      // Keep the user's message; do not invent a generic assistant fallback reply
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const handleSend = async (textToSend?: string) => {
     const text = (textToSend || input).trim();
     if (!text || busy) return;
 
     setInput('');
     setErrorNotice(null);
+    setCanRetry(false);
 
     const nowStr = formatTime(new Date());
     const newMessages: ChatMessage[] = [...messages, { role: 'user', content: text }];
     setMessages(newMessages);
-    setTimestamps(prev => [...prev, nowStr]);
-    setBusy(true);
+    setTimestamps((prev) => [...prev, nowStr]);
 
     // If user asks about breathing, toggle the interactive breathing widget
     if (/breath|4-7-8|pranayam/i.test(text)) {
@@ -214,36 +249,14 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
       setBreathActive(true);
     }
 
-    try {
-      const messagesToSend = newMessages.slice(-20);
-      const data = await chatService.sendMessage(messagesToSend);
+    await requestGuideReply(newMessages);
+  };
 
-      if (data.urgent) {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
-        setTimestamps(prev => [...prev, formatTime(new Date())]);
-        triggerEmergency();
-        return;
-      }
-
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
-      setTimestamps(prev => [...prev, formatTime(new Date())]);
-      
-      if (data.suggestAppointment || newMessages.length >= 6) {
-        setShowConsultationSuggestion(true);
-      }
-    } catch (err: any) {
-      setErrorNotice('Connection pause. You can retry your message.');
-      setMessages(prev => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: "I am having a brief connection pause, but I am here with you. If you are experiencing acute distress, please reach out directly to the national mental health helpline 14416 (Tele-MANAS)."
-        }
-      ]);
-      setTimestamps(prev => [...prev, formatTime(new Date())]);
-    } finally {
-      setBusy(false);
-    }
+  const handleRetry = async () => {
+    if (busy || !canRetry) return;
+    const last = messages[messages.length - 1];
+    if (!last || last.role !== 'user') return;
+    await requestGuideReply(messages);
   };
 
   const handleCopyMessage = (content: string, index: number) => {
@@ -256,6 +269,7 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
     setMessages([initialGreeting]);
     setTimestamps([formatTime(new Date())]);
     setErrorNotice(null);
+    setCanRetry(false);
     setShowConsultationSuggestion(false);
     setShowBreathingWidget(false);
     setBreathActive(false);
@@ -771,6 +785,36 @@ export const FloatingChat: React.FC<FloatingChatProps> = ({
           <div className="px-3 py-1 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-[9.5px] text-slate-500 dark:text-slate-400 text-center shrink-0">
             {t('chat.disclaimer', 'Automated personal wellness guide. Non-clinical & non-diagnostic.')}
           </div>
+
+          {errorNotice && (
+            <div className="px-3 py-2 bg-amber-50 dark:bg-amber-950/40 border-t border-amber-200 dark:border-amber-800/60 flex items-start gap-2 shrink-0">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-700 dark:text-amber-300 mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] text-amber-900 dark:text-amber-100 leading-snug">{errorNotice}</p>
+                {canRetry && (
+                  <button
+                    type="button"
+                    onClick={handleRetry}
+                    disabled={busy}
+                    className="mt-1.5 text-[11px] font-semibold text-teal-800 dark:text-teal-300 underline hover:no-underline disabled:opacity-50 cursor-pointer"
+                  >
+                    Retry last message
+                  </button>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setErrorNotice(null);
+                  setCanRetry(false);
+                }}
+                className="text-amber-700 dark:text-amber-300 text-xs cursor-pointer"
+                aria-label="Dismiss error"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
 
           {/* Compact Chat Input Box Form */}
           <form

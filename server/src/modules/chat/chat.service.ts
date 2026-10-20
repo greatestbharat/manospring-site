@@ -1,56 +1,66 @@
 import { ChatMessage } from '../../types/index.js';
-import { urgentPattern, urgentReply, getGroqChatCompletion, generateCompassionateFallback } from '../../services/groq.service.js';
+import {
+  urgentPattern,
+  urgentReply,
+  getGroqChatCompletion,
+  GroqApiError
+} from '../../services/groq.service.js';
 
 export interface ChatResponseResult {
   reply: string;
   urgent: boolean;
   crisis: boolean;
   suggestAppointment: boolean;
-  source: 'groq' | 'local_wellness_engine';
+  source: 'groq' | 'crisis_safety';
+  retryable?: boolean;
 }
 
 export class ChatService {
   public async processChat(messages: ChatMessage[]): Promise<ChatResponseResult> {
-    const lastUser = [...messages].reverse().find(m => m.role === 'user');
+    const normalized = messages
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .map((m) => ({
+        role: m.role as 'user' | 'assistant',
+        content: String(m.content || '').trim()
+      }))
+      .filter((m) => m.content.length > 0);
+
+    const lastUser = [...normalized].reverse().find((m) => m.role === 'user');
     if (!lastUser) {
-      throw new Error('A user message is required.');
+      throw new GroqApiError('A user message is required.', {
+        status: 400,
+        code: 'MISSING_USER_MESSAGE',
+        retryable: false
+      });
     }
 
-    // Immediate crisis detection
+    // Immediate crisis detection — safety path (not a generic empathy fallback)
     if (urgentPattern.test(lastUser.content)) {
       return {
         reply: urgentReply,
         urgent: true,
         crisis: true,
         suggestAppointment: false,
-        source: 'local_wellness_engine'
+        source: 'crisis_safety'
       };
     }
 
-    const userTurns = messages.filter(m => m.role === 'user').length;
-    const wantsConsultation = /\b(book|appointment|psychiat|doctor|therapist|clinician|cost|fees|consult)\b/i.test(lastUser.content);
+    const userTurns = normalized.filter((m) => m.role === 'user').length;
+    const wantsConsultation =
+      /\b(book|appointment|psychiat|doctor|therapist|clinician|cost|fees|consult)\b/i.test(
+        lastUser.content
+      );
     const suggestAppointment = userTurns >= 8 || wantsConsultation;
 
-    try {
-      const reply = await getGroqChatCompletion(messages);
-      return {
-        reply,
-        urgent: false,
-        crisis: false,
-        suggestAppointment,
-        source: 'groq'
-      };
-    } catch (err: any) {
-      // Fallback gracefully to compassionate local mental wellness engine
-      const fallbackReply = generateCompassionateFallback(lastUser.content, messages);
-      return {
-        reply: fallbackReply,
-        urgent: false,
-        crisis: false,
-        suggestAppointment,
-        source: 'local_wellness_engine'
-      };
-    }
+    // Live AI only — do not silently replace failures with generic local copy
+    const reply = await getGroqChatCompletion(normalized);
+    return {
+      reply,
+      urgent: false,
+      crisis: false,
+      suggestAppointment,
+      source: 'groq'
+    };
   }
 }
 

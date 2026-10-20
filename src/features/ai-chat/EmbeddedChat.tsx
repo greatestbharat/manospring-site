@@ -8,26 +8,59 @@ interface EmbeddedChatProps {
   onEmergencyTrigger: () => void;
 }
 
+const INITIAL_GREETING: ChatMessage = {
+  role: 'assistant',
+  content:
+    "Hello — I'm your Personal Wellness Guide. This is a private space to talk about your wellbeing. How can I help today?"
+};
+
 export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
   onBookClick,
   onEmergencyTrigger
 }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'assistant',
-      content: "Hello, I'm here to listen. 🌿 What has been on your mind lately? You can share whatever feels comfortable."
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_GREETING]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [suggestAppointment, setSuggestAppointment] = useState(false);
+  const [errorNotice, setErrorNotice] = useState<string | null>(null);
+  const [canRetry, setCanRetry] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, busy]);
+  }, [messages, busy, errorNotice]);
+
+  const requestGuideReply = async (conversation: ChatMessage[]) => {
+    setBusy(true);
+    setErrorNotice(null);
+    setCanRetry(false);
+
+    try {
+      const data = await chatService.sendMessage(conversation);
+
+      if (data.urgent) {
+        setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+        onEmergencyTrigger();
+        return;
+      }
+
+      setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+      if (data.suggestAppointment) {
+        setSuggestAppointment(true);
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : 'Could not reach the wellness guide. Please try again.';
+      setErrorNotice(message);
+      setCanRetry(true);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const handleSend = async (textToSend?: string) => {
     const text = (textToSend || input).trim();
@@ -36,42 +69,21 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
     setInput('');
     const newMessages: ChatMessage[] = [...messages, { role: 'user', content: text }];
     setMessages(newMessages);
-    setBusy(true);
+    await requestGuideReply(newMessages);
+  };
 
-    try {
-      const data = await chatService.sendMessage(newMessages);
-
-      if (data.urgent) {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
-        onEmergencyTrigger();
-        return;
-      }
-
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
-      if (data.suggestAppointment) {
-        setSuggestAppointment(true);
-      }
-    } catch (err) {
-      setMessages(prev => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: "I'm having a brief connection pause, but I'm here with you. If you need immediate care, our certified clinicians and national helpline 14416 are available."
-        }
-      ]);
-    } finally {
-      setBusy(false);
-    }
+  const handleRetry = async () => {
+    if (busy || !canRetry) return;
+    const last = messages[messages.length - 1];
+    if (!last || last.role !== 'user') return;
+    await requestGuideReply(messages);
   };
 
   const handleReset = () => {
-    setMessages([
-      {
-        role: 'assistant',
-        content: "Hello, I'm here to listen. 🌿 What has been on your mind lately? You can share whatever feels comfortable."
-      }
-    ]);
+    setMessages([INITIAL_GREETING]);
     setSuggestAppointment(false);
+    setErrorNotice(null);
+    setCanRetry(false);
   };
 
   return (
@@ -113,7 +125,6 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
           </div>
         </div>
 
-        {/* Chat Window Card */}
         <div className="lg:col-span-7">
           <div className="bg-white border border-sage-100 rounded-3xl shadow-soft flex flex-col h-[480px] overflow-hidden">
             <div className="px-5 py-3.5 bg-paper-cream border-b border-sage-100 flex items-center justify-between">
@@ -166,7 +177,22 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({
               )}
             </div>
 
-            {/* Quick Starters */}
+            {errorNotice && (
+              <div className="px-4 py-2.5 bg-amber-50 border-t border-amber-200 text-xs text-amber-900 flex items-center justify-between gap-2">
+                <span className="leading-snug">{errorNotice}</span>
+                {canRetry && (
+                  <button
+                    type="button"
+                    onClick={handleRetry}
+                    disabled={busy}
+                    className="shrink-0 font-semibold underline disabled:opacity-50"
+                  >
+                    Retry
+                  </button>
+                )}
+              </div>
+            )}
+
             {messages.length === 1 && (
               <div className="px-5 py-2 flex gap-1.5 flex-wrap bg-paper-cream border-t border-sage-50">
                 <button
